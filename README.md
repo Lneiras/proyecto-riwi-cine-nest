@@ -25,6 +25,24 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Docker
+
+The API and PostgreSQL database run as separate containers. The database is named `postgres` and is exposed on port `5432`; the API is exposed on port `3000`.
+
+```bash
+docker compose up --build
+```
+
+Once both services are healthy, the API is available at `http://localhost:3000`.
+
+To stop the containers while preserving the database volume:
+
+```bash
+docker compose down
+```
+
+The environment values are in `.env`. Docker overrides `DB_HOST` with `database` so the API can reach PostgreSQL through the Docker network; local execution uses `localhost` from the same file.
+
 ## Project setup
 
 ```bash
