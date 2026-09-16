@@ -1,12 +1,20 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CityDao } from "../dao/city.dao.js";
 import { CreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { DepartmentService } from "./department.service.js";
 
 @Injectable()
 export class CityService {
-  constructor(private readonly cityDao: CityDao) {}
+  constructor(private readonly cityDao: CityDao, private readonly departmentService: DepartmentService) {}
 
   async create(createCity: CreateAndUpdateCityDto) {
+
+    const department = this.departmentService.findOne(createCity.departmentId)
+
+    if (!department){
+      throw new NotFoundException(`The department doesn't exist`)
+    }
+
     return this.cityDao.create(createCity);
   }
 
@@ -23,7 +31,15 @@ export class CityService {
   }
 
   async update(id: number, data: CreateAndUpdateCityDto) {
+    
     await this.findOne(id);
+
+    const department = this.departmentService.findOne(data.departmentId)
+
+    if (!department){
+      throw new NotFoundException(`The department doesn't exist`)
+    }
+
     return this.cityDao.update(id, data);
   }
 
