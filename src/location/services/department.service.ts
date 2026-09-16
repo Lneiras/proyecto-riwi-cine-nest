@@ -22,6 +22,11 @@ export class DepartmentService {
     return this.departmentDao.findAll();
   }
 
+  async findByCountryId(countryId: number) {
+    await this.countryService.findOne(countryId);
+    return this.departmentDao.findByCountryId(countryId);
+  }
+
   async findOne(id: number) {
     const department = await this.departmentDao.findOne(id);
     if (!department) {

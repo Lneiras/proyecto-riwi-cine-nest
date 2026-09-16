@@ -22,6 +22,11 @@ export class CityService {
     return this.cityDao.findAll();
   }
 
+  async findByDepartmentId(departmentId: number) {
+    await this.departmentService.findOne(departmentId);
+    return this.cityDao.findByDepartmentId(departmentId);
+  }
+
   async findOne(id: number) {
     const city = await this.cityDao.findOne(id);
     if (!city) {

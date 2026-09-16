@@ -20,6 +20,13 @@ export class DepartmentDao {
     return this.repository.find();
   }
 
+  async findByCountryId(countryId: number): Promise<Department[]> {
+    return this.repository.find({
+      where: { countryId },
+      order: { name: "ASC" },
+    });
+  }
+
   async findOne(id: number): Promise<Department | null> {
     return this.repository.findOne({ where: { id } });
   }
