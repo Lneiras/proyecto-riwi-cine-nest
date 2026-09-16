@@ -9,7 +9,7 @@ export class DepartmentService {
 
   async create(createDepartment: CreateAndUpdateDepartmentDto) {
 
-    const country = this.countryService.findOne(createDepartment.countryId)
+    const country = await this.countryService.findOne(createDepartment.countryId)
 
     if(!country){
       throw new NotFoundException(`The country doesn't exist`)
@@ -36,7 +36,7 @@ export class DepartmentService {
 
     await this.findOne(id);
 
-    const country = this.countryService.findOne(data.countryId)
+    const country = await this.countryService.findOne(data.countryId)
 
     if(!country){
       throw new NotFoundException(`The country doesn't exist`)

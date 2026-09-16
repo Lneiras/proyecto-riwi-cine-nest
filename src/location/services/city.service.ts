@@ -9,7 +9,7 @@ export class CityService {
 
   async create(createCity: CreateAndUpdateCityDto) {
 
-    const department = this.departmentService.findOne(createCity.departmentId)
+    const department = await this.departmentService.findOne(createCity.departmentId)
 
     if (!department){
       throw new NotFoundException(`The department doesn't exist`)
@@ -31,10 +31,10 @@ export class CityService {
   }
 
   async update(id: number, data: CreateAndUpdateCityDto) {
-    
+
     await this.findOne(id);
 
-    const department = this.departmentService.findOne(data.departmentId)
+    const department = await this.departmentService.findOne(data.departmentId)
 
     if (!department){
       throw new NotFoundException(`The department doesn't exist`)
