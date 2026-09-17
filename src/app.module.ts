@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { createObserveModule } from "@nestjs/observe";
 import { LocationModule } from "./location/location.module.js";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { MoviesModule } from './movies/movies.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -32,6 +33,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       }),
     }),
     LocationModule,
+    MoviesModule,
   ],
 })
 export class AppModule {}
