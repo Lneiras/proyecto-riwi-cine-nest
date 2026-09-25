@@ -5,14 +5,18 @@ import { CountryService } from "./country.service.js";
 
 @Injectable()
 export class DepartmentService {
-  constructor(private readonly departmentDao: DepartmentDao, private readonly countryService: CountryService) {}
+  constructor(
+    private readonly departmentDao: DepartmentDao,
+    private readonly countryService: CountryService,
+  ) {}
 
   async create(createDepartment: CreateAndUpdateDepartmentDto) {
+    const country = await this.countryService.findOne(
+      createDepartment.countryId,
+    );
 
-    const country = await this.countryService.findOne(createDepartment.countryId)
-
-    if(!country){
-      throw new NotFoundException(`The country doesn't exist`)
+    if (!country) {
+      throw new NotFoundException(`The country doesn't exist`);
     }
 
     return this.departmentDao.create(createDepartment);
@@ -20,6 +24,11 @@ export class DepartmentService {
 
   async findAll() {
     return this.departmentDao.findAll();
+  }
+
+  async findByCountryId(countryId: number) {
+    await this.countryService.findOne(countryId);
+    return this.departmentDao.findByCountryId(countryId);
   }
 
   async findOne(id: number) {
@@ -33,13 +42,12 @@ export class DepartmentService {
   }
 
   async update(id: number, data: CreateAndUpdateDepartmentDto) {
-
     await this.findOne(id);
 
-    const country = await this.countryService.findOne(data.countryId)
+    const country = await this.countryService.findOne(data.countryId);
 
-    if(!country){
-      throw new NotFoundException(`The country doesn't exist`)
+    if (!country) {
+      throw new NotFoundException(`The country doesn't exist`);
     }
 
     return this.departmentDao.update(id, data);

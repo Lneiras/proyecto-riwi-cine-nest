@@ -19,6 +19,13 @@ export class CityDao {
     return this.repository.find();
   }
 
+  async findByDepartmentId(departmentId: number): Promise<City[]> {
+    return this.repository.find({
+      where: { departmentId },
+      order: { name: "ASC" },
+    });
+  }
+
   async findOne(id: number): Promise<City | null> {
     return this.repository.findOne({ where: { id } });
   }

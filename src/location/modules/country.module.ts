@@ -9,5 +9,6 @@ import { CountryService } from "../services/country.service.js";
   imports: [TypeOrmModule.forFeature([Country])],
   controllers: [CountryController],
   providers: [CountryDao, CountryService],
+  exports: [CountryService],
 })
 export class CountryModule {}
