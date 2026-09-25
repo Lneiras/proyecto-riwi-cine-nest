@@ -19,7 +19,12 @@
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.ts"
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "typeorm": "typeorm -d ./dist/config/data-source.js",
+    "migration:generate": "typeorm migration:generate -d ./dist/config/data-source.js",
+    "migration:run": "typeorm migration:run -d ./dist/config/data-source.js",
+    "migration:revert": "typeorm migration:revert -d ./dist/config/data-source.js",
+    "seed": "nest build && node dist/database/seeds/run-seeds.js"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
@@ -28,9 +33,11 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/observe": "^0.1.8",
     "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.2",
     "@nestjs/typeorm": "^12.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "helmet": "^8.3.0",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
