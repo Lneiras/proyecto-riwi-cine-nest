@@ -53,6 +53,11 @@ async function bootstrap() {
     .setVersion("1.0.0")
     .addTag("Health", "Verificación de estado operativo y base de datos")
     .addTag("Locations", "Endpoints de gestión geográfica y ubicaciones")
+    .addTag(
+      "Auth",
+      "Endpoints de autenticación segura, control de sesiones y auditoría (HU-007)",
+    )
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

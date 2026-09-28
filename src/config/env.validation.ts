@@ -48,6 +48,23 @@ export class EnvironmentVariables {
   @IsBoolean()
   @IsOptional()
   DB_SYNCHRONIZE: boolean = false;
+
+  @IsString()
+  @IsOptional()
+  JWT_SECRET: string = "default_jwt_secret_riwi_cine_2026_super_secure";
+
+  @IsString()
+  @IsOptional()
+  JWT_EXPIRES_IN: string = "15m";
+
+  @IsString()
+  @IsOptional()
+  JWT_REFRESH_SECRET: string =
+    "default_jwt_refresh_secret_riwi_cine_2026_super_secure";
+
+  @IsString()
+  @IsOptional()
+  JWT_REFRESH_EXPIRES_IN: string = "7d";
 }
 
 export function validateEnvironment(config: Record<string, any>) {
