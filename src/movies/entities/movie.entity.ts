@@ -4,11 +4,16 @@ import {
   Column, 
   CreateDateColumn, 
   UpdateDateColumn, 
-  Index 
+  Index,
+  ManyToOne,
+  OneToMany,
+  JoinColumn
 } from "typeorm";
+// import { Genre } from "./genre.entity"; 
+// import { Status } from "./status.entity";
+// import { Showtimes } from "./showtimes.entity";
 
 @Entity('movies')
-// 📌 Migración de los índices de Sequelize
 @Index(['genreId'])
 @Index(['statusId'])
 @Index(['rating'])
@@ -21,23 +26,23 @@ export class Movie {
     title: string;
 
     @Column({ type: 'int', nullable: false })
-    // Nota: @Min(1) va en tu CreateMovieDto para validación HTTP, 
-    // pero si usas class-validator en la entidad, déjalo aquí.
     durationMinutes: number;
 
-    // 🔴 Corregido: En TypeORM no existe el tipo 'string', se usa 'varchar'
     @Column({ type: 'varchar', length: 10, nullable: false })
     rating: string;
 
     @Column({ type: 'int', nullable: false })
     genreId: number;
 
-    // 📌 Campos faltantes migrados:
+    // Relación con Género
+    // @ManyToOne(() => Genre, { onDelete: 'RESTRICT' })
+    // @JoinColumn({ name: 'genreId' })
+    // genre: Genre;
 
     @Column({ type: 'text', nullable: true })
     synopsis: string | null;
 
-    @Column({ type: 'date', nullable: true }) // 'date' equivale a DATEONLY (sin hora)
+    @Column({ type: 'date', nullable: true })
     releaseDate: Date | string | null;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
@@ -52,11 +57,21 @@ export class Movie {
     @Column({ type: 'int', nullable: false })
     statusId: number;
 
-    // 📌 Migración de 'timestamps: true' de Sequelize
+    // Relación con Estado (ej. Estreno, Cartelera, Archivada)
+    // @ManyToOne(() => Status, { onDelete: 'RESTRICT' })
+    // @JoinColumn({ name: 'statusId' })
+    // status: Status;
+
+    // Relación bidireccional inversa hacia Showtimes
+    // Una película tiene muchas funciones (showtimes)
+    @OneToMany(() => Showtimes, (showtime) => showtime.movie)
+    showtimes: Showtimes[];
+
     @CreateDateColumn({ name: 'createdAt' })
     createdAt: Date;
 
     @UpdateDateColumn({ name: 'updatedAt' })
     updatedAt: Date;
 }
+
 

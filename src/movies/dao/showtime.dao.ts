@@ -12,7 +12,7 @@ export class ShowtimeDao{
         private readonly showtimeRepository: Repository<Showtimes[]>
     ){}
 
-    async findFutureShowtimesByMovieId(movieId:number, cityId:number):Promise<Showtimes[]>{
+    async findUpcomingByMovie(movieId:number, cityId:number):Promise<Showtimes[]>{
         return this.showtimeRepository.find({
             where: {
                 movieId,
