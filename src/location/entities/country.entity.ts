@@ -10,6 +10,9 @@ export class Country {
   name: string;
 
   // A country can have multiple departments.
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
   @OneToMany(() => Department, (department) => department.country)
   departments: Department[];
 }

@@ -1,48 +1,39 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-} from "@nestjs/common";
-import { CreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { CityService } from "../services/city.service.js";
+import { ReqCreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { City } from "../entities/city.entity.js";
 
-@Controller("cities")
+@Controller('countries/:countryName/departments/:departmentName/cities')
 export class CityController {
-  constructor(private readonly cityService: CityService) {}
+  constructor(private readonly service: CityService) {}
 
-  @Post("create")
-  async create(@Body() createCity: CreateAndUpdateCityDto) {
-    return this.cityService.create(createCity);
+  @Post()
+  create(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Body() dto: ReqCreateAndUpdateCityDto): Promise<City> {
+    return this.service.createInDepartment(dto, departmentName, countryName);
   }
 
-  @Get("allcities")
-  async getAll() {
-    return this.cityService.findAll();
+  @Get()
+  findAll(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string): Promise<City[]> {
+    return this.service.findByDepartmentAndCountry(departmentName, countryName);
   }
 
-  @Get(":id")
-  async findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.cityService.findOne(id);
+  @Get(':cityName')
+  findOne(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Param('cityName') cityName: string): Promise<City> {
+    return this.service.findOneByNameInDepartment(cityName, departmentName, countryName);
   }
 
-  @Patch(":id/update")
-  async update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateCity: CreateAndUpdateCityDto,
-  ) {
-    return this.cityService.update(id, updateCity);
+  @Patch(':cityName')
+  update(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Param('cityName') cityName: string, @Body() dto: ReqCreateAndUpdateCityDto): Promise<City | null> {
+    return this.service.updateInDepartment(cityName, departmentName, countryName, dto);
   }
 
-  @Delete(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param("id", ParseIntPipe) id: number) {
-    return this.cityService.delete(id);
+  @Delete(':cityName/soft-delete')
+  softDelete(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Param('cityName') cityName: string): Promise<void> {
+    return this.service.softDeleteInDepartment(cityName, departmentName, countryName);
+  }
+
+  @Delete(':cityName')
+  delete(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Param('cityName') cityName: string): Promise<void> {
+    return this.service.deleteInDepartment(cityName, departmentName, countryName);
   }
 }
