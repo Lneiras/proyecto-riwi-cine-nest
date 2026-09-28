@@ -31,8 +31,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       } else if (typeof res === "object" && res !== null) {
         message = (res as any).message || res;
       }
-    } else if (exception instanceof Error) {
-      message = exception.message;
     }
 
     const errorResponse = {
