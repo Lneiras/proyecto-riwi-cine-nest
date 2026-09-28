@@ -5,14 +5,18 @@ import { DepartmentService } from "./department.service.js";
 
 @Injectable()
 export class CityService {
-  constructor(private readonly cityDao: CityDao, private readonly departmentService: DepartmentService) {}
+  constructor(
+    private readonly cityDao: CityDao,
+    private readonly departmentService: DepartmentService,
+  ) {}
 
   async create(createCity: CreateAndUpdateCityDto) {
+    const department = await this.departmentService.findOne(
+      createCity.departmentId,
+    );
 
-    const department = await this.departmentService.findOne(createCity.departmentId)
-
-    if (!department){
-      throw new NotFoundException(`The department doesn't exist`)
+    if (!department) {
+      throw new NotFoundException(`The department doesn't exist`);
     }
 
     return this.cityDao.create(createCity);
@@ -36,13 +40,12 @@ export class CityService {
   }
 
   async update(id: number, data: CreateAndUpdateCityDto) {
-
     await this.findOne(id);
 
-    const department = await this.departmentService.findOne(data.departmentId)
+    const department = await this.departmentService.findOne(data.departmentId);
 
-    if (!department){
-      throw new NotFoundException(`The department doesn't exist`)
+    if (!department) {
+      throw new NotFoundException(`The department doesn't exist`);
     }
 
     return this.cityDao.update(id, data);

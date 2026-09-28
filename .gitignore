@@ -19,6 +19,9 @@ lerna-debug.log*
 .env.test
 .env.production
 
+# TypeScript build info
+*.tsbuildinfo
+
 # temp directory
 .temp
 .tmp
