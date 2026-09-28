@@ -5,18 +5,21 @@ import { DataSource } from "typeorm";
 
 describe("HealthService", () => {
   let service: HealthService;
-  let dataSourceMock: Partial<DataSource>;
+  let dataSourceMock: {
+    isInitialized: boolean;
+    query: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     dataSourceMock = {
       isInitialized: true,
       query: vi.fn(),
     };
-    service = new HealthService(dataSourceMock as DataSource);
+    service = new HealthService(dataSourceMock as unknown as DataSource);
   });
 
   it("should return ok status when database query succeeds", async () => {
-    (dataSourceMock.query as any).mockResolvedValueOnce([{ "?column?": 1 }]);
+    dataSourceMock.query.mockResolvedValueOnce([{ "?column?": 1 }]);
 
     const result = await service.check();
 
@@ -34,7 +37,7 @@ describe("HealthService", () => {
   });
 
   it("should throw ServiceUnavailableException when database query fails", async () => {
-    (dataSourceMock.query as any).mockRejectedValueOnce(
+    dataSourceMock.query.mockRejectedValueOnce(
       new Error("Connection refused"),
     );
 
