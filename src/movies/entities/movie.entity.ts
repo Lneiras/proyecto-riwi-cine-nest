@@ -9,9 +9,9 @@ import {
   OneToMany,
   JoinColumn
 } from "typeorm";
-// import { Genre } from "./genre.entity"; 
-// import { Status } from "./status.entity";
-// import { Showtimes } from "./showtimes.entity";
+// import { Genre } from "./genre.entity.ts"; 
+// import { Status } from "./status.entity.ts";
+import { Showtimes } from "./showtime.entity.js";
 
 @Entity('movies')
 @Index(['genreId'])
@@ -64,7 +64,7 @@ export class Movie {
 
     // Relación bidireccional inversa hacia Showtimes
     // Una película tiene muchas funciones (showtimes)
-    @OneToMany(() => Showtimes, (showtime) => showtime.movie)
+    @OneToMany(() => Showtimes, (showtime) => showtime.movieId)
     showtimes: Showtimes[];
 
     @CreateDateColumn({ name: 'createdAt' })
