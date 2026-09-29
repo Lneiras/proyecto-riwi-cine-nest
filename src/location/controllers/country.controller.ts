@@ -1,55 +1,39 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-} from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CreateAndUpdateCountryDto } from "../dto/country.dto.js";
+import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { CountryService } from "../services/country.service.js";
+import { CreateAndUpdateCountryDto } from "../dto/country.dto.js";
+import { Country } from "../entities/country.entity.js";
 
-@ApiTags("Locations")
-@Controller("countries")
+@Controller('countries')
 export class CountryController {
-  constructor(private readonly countryService: CountryService) {}
+  constructor(private readonly service: CountryService) {}
 
-  @Post("create")
-  @ApiOperation({ summary: "Crear un nuevo país" })
-  async create(@Body() createCountry: CreateAndUpdateCountryDto) {
-    return this.countryService.create(createCountry);
+  @Post()
+  async create(@Body() dto: CreateAndUpdateCountryDto): Promise<Country> {
+    return this.service.create(dto);
   }
 
-  @Get("allcountries")
-  @ApiOperation({ summary: "Obtener lista de todos los países" })
-  async getAll() {
-    return this.countryService.findAll();
+  @Get()
+  async findAll(): Promise<Country[]> {
+    return this.service.findAll();
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Obtener un país por su ID" })
-  async findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.countryService.findOne(id);
+  @Get(':name')
+  async findOne(@Param('name') name: string): Promise<Country> {
+    return this.service.findOneByName(name);
   }
 
-  @Patch(":id/update")
-  @ApiOperation({ summary: "Actualizar datos de un país" })
-  async update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateCountry: CreateAndUpdateCountryDto,
-  ) {
-    return this.countryService.update(id, updateCountry);
+  @Patch(':name')
+  async update(@Param('name') name: string, @Body() dto: CreateAndUpdateCountryDto): Promise<Country | null> {
+    return this.service.update(name, dto);
   }
 
-  @Delete(":id")
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Eliminar un país por su ID" })
-  async delete(@Param("id", ParseIntPipe) id: number) {
-    return this.countryService.delete(id);
+  @Delete(':name/soft-delete')
+  async softDelete(@Param('name') name: string): Promise<void> {
+    return this.service.softDelete(name);
+  }
+
+  @Delete(':name')
+  async delete(@Param('name') name: string): Promise<void> {
+    return this.service.delete(name);
   }
 }

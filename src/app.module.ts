@@ -9,6 +9,7 @@ import { HealthModule } from "./health/health.module.js";
 import { validateEnvironment } from "./config/env.validation.js";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter.js";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor.js";
+import { CinemaModule } from './cinema/cinema.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -51,6 +52,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
     },
+    CinemaModule,
   ],
 })
 export class AppModule {}
