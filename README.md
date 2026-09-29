@@ -86,15 +86,20 @@ El sistema valida de forma estricta las variables requeridas al iniciar (`env.va
 | `JWT_EXPIRES_IN` | String | No | `15m` | `15m` | `15m` | `15m` | Tiempo de vida de Access Token (15 min) |
 | `JWT_REFRESH_SECRET` | String | No | `default_jwt_refresh_secret_riwi_cine_2026_super_secure` | Secret Dev | Secret QA | Secret Prod | Clave secreta para Refresh Tokens |
 | `JWT_REFRESH_EXPIRES_IN` | String | No | `7d` | `7d` | `7d` | `7d` | Tiempo de vida de Refresh Token (7 días) |
+| `SONAR_PORT` | Number | No | `9000` | `9000` | `9000` | N/A | Puerto web de SonarQube |
+| `JENKINS_PORT` | Number | No | `8080` | `8080` | `8080` | N/A | Puerto web de Jenkins CI/CD |
 
 ---
 
-## 🐳 Levantamiento con Docker
+## 🐳 Levantamiento con Docker y DevOps (Jenkins + SonarQube)
 
-El archivo `docker-compose.yml` orquesta 3 servicios interconectados bajo la red `cine-network`:
-- **`db`** (PostgreSQL 16 Alpine con healthcheck integrado)
+El archivo `docker-compose.yml` orquesta los servicios de la aplicación y la infraestructura de CI/CD / DevOps bajo la red `cine-network`:
+- **`db`** (PostgreSQL 16 Alpine con healthcheck integrado para la API)
 - **`api`** (NestJS en build multi-stage alpine, depende de que `db` esté healthy)
-- **`pgadmin`** (Herramienta visual de administración para PostgreSQL)
+- **`pgadmin`** (Herramienta visual de administración para PostgreSQL en el puerto `5050`)
+- **`sonar-db`** (Base de datos PostgreSQL 16 dedicada para SonarQube con healthcheck)
+- **`sonarqube`** (SonarQube Community LTS en el puerto `9000` para análisis estático y métricas de calidad)
+- **`jenkins`** (Servidor de CI/CD Jenkins LTS en el puerto `8080` y agente en `50000`, equipado con Docker CLI y Node.js)
 
 ### 1. Clonar y preparar variables
 ```bash
@@ -103,16 +108,29 @@ cp .env.example .env
 
 ### 2. Levantar los contenedores
 ```bash
+# Levantar todos los servicios (API, Base de datos, SonarQube y Jenkins)
 docker compose up -d --build
+
+# O si solo deseas levantar la API y bases de datos sin Jenkins/SonarQube:
+docker compose up -d db api pgadmin
 ```
 
-### 3. Verificar estado
+> **Nota para SonarQube en Linux / WSL2:**
+> SonarQube incluye un motor Elasticsearch que requiere que el kernel permita al menos 262144 mapeos de memoria. Si se detiene con error de elasticsearch, ejecuta en tu terminal / WSL:
+> ```bash
+> sysctl -w vm.max_map_count=262144
+> ```
+
+### 3. Verificar estado y accesos
 - **API Health:** [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
 - **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
-- **pgAdmin:** [http://localhost:5050](http://localhost:5050)
-  - Usuario: `admin@riwi.com`
-  - Contraseña: `admin1234`
-  - Host de conexión al crear servidor en pgAdmin: `db` (o `database`), puerto `5432`.
+- **pgAdmin:** [http://localhost:5050](http://localhost:5050) (Usuario: `admin@riwi.com`, Contraseña: `admin1234`)
+- **SonarQube:** [http://localhost:9000](http://localhost:9000) (Usuario inicial: `admin`, Contraseña inicial: `admin`)
+- **Jenkins:** [http://localhost:8080](http://localhost:8080)
+  - Para obtener la contraseña inicial de instalación de Jenkins:
+    ```bash
+    docker exec riwi-cine-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+    ```
 
 ### 4. Detener contenedores (preservando datos)
 ```bash
