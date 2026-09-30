@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:22'
-            args '-u root'
+            args '-u root --network proyecto-riwi-cine-nest_cine-network'
         }
     }
 
