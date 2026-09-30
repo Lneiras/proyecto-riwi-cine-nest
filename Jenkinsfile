@@ -2,14 +2,21 @@ pipeline {
     agent {
         docker {
             image 'node:22'
+            args '-u root'
         }
     }
 
     stages {
 
-        stage('Install dependences'){
+        stage('Checkout') {
             steps {
-                echo 'installing dependences...'
+                checkout scm
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                echo 'Installing dependencies...'
                 sh 'npm install'
             }
         }
@@ -21,31 +28,28 @@ pipeline {
             }
         }
 
-        stage('Check SonarScanner') {
-            steps {
-                sh 'which sonar-scanner'
-                sh 'sonar-scanner --version'
-            }
-        }
-
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        sonar-scanner \
-                          -Dsonar.projectKey=riwi-cine \
-                          -Dsonar.sources=src
-                    '''
+                    script {
+                        def scannerHome = tool 'SonarScanner'
+
+                        echo "SonarScanner encontrado en: ${scannerHome}"
+
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                              -Dsonar.projectKey=riwi-cine \
+                              -Dsonar.sources=src
+                        """
+                    }
                 }
             }
         }
 
         stage('Hola') {
             steps {
-                echo 'Jenkins está funcionando'
+                echo 'Pipeline terminado correctamente'
             }
         }
-
     }
 }
