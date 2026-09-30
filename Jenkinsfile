@@ -22,6 +22,18 @@ pipeline {
             }
         }
 
+        stage('Install Java') {
+            steps {
+                echo 'Instalando Java...'
+
+                sh '''
+                    apt-get update
+                    apt-get install -y openjdk-17-jre
+                    java -version
+                '''
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
