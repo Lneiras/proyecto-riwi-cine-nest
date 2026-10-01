@@ -1,114 +1,245 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🎬 Plataforma Cine Riwi (Backend NestJS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend del sistema de gestión cinematográfica para Riwi, desarrollado con **Node.js**, **NestJS**, **TypeORM**, **PostgreSQL** y **Docker**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> **Nota sobre la migración desde Express:**
+> Este proyecto corresponde a la migración de la arquitectura original basada en Express/Sequelize hacia **NestJS v12** con **TypeORM**, incorporando arquitectura modular por dominio, validación estricta de variables de entorno mediante `ConfigModule`, documentación OpenAPI interactiva vía `@nestjs/swagger`, y testing unificado con `Vitest` + `Supertest`.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📋 Tabla de Contenidos
+1. [Arquitectura y Tecnologías](#-arquitectura-y-tecnologías)
+2. [Estructura del Proyecto](#-estructura-del-proyecto)
+3. [Variables de Entorno por Ambiente](#-variables-de-entorno-por-ambiente)
+4. [Levantamiento con Docker](#-levantamiento-con-docker)
+5. [Ejecución en Desarrollo Local](#-ejecución-en-desarrollo-local)
+6. [Endpoints Clave y Documentación](#-endpoints-clave-y-documentación)
+7. [Base de Datos, Migraciones y Seeders](#-base-de-datos-migraciones-y-seeders)
+8. [Pruebas Automatizadas y Calidad](#-pruebas-automatizadas-y-calidad)
 
-## Project setup
+---
 
-```bash
-$ npm install
+## 🛠 Arquitectura y Tecnologías
+
+- **Framework:** [NestJS 12](https://nestjs.com/) (Node.js v22/v24 en ESM)
+- **Base de Datos:** [PostgreSQL 16](https://www.postgresql.org/)
+- **ORM:** [TypeORM](https://typeorm.io/) con soporte de migraciones formales y carga automática de entidades
+- **Contenedores:** [Docker](https://www.docker.com/) con build multi-stage y Docker Compose (`api`, `db`, `pgadmin`)
+- **Seguridad y Utilidades:** [Helmet](https://helmetjs.github.io/), CORS habilitado, filtro global de excepciones (`AllExceptionsFilter`), interceptor de logging HTTP
+- **Documentación API:** [Swagger / OpenAPI](https://swagger.io/) montado en `/api-docs`
+- **Testing y Calidad:** [Vitest](https://vitest.dev/), Supertest, Oxlint y Prettier
+
+---
+
+## 📂 Estructura del Proyecto
+
+```text
+proyecto-riwi-cine-nest/
+├── .github/workflows/          # Pipeline de Integración Continua (CI)
+├── src/
+│   ├── common/                 # Componentes transversales
+│   │   ├── filters/            # Filtros globales de excepción (HttpException / 500)
+│   │   └── interceptors/       # Interceptor de logging HTTP y tiempo de respuesta
+│   ├── config/                 # Configuración de entorno y conexión
+│   │   ├── env.validation.ts   # Esquema y validación fail-fast de variables de entorno
+│   │   └── data-source.ts      # DataSource TypeORM para CLI y migraciones
+│   ├── database/               # Persistencia avanzada
+│   │   ├── migrations/         # Migraciones SQL generadas por TypeORM
+│   │   └── seeds/              # Scripts de poblamiento inicial de datos
+│   ├── health/                 # Módulo de Health Check
+│   │   ├── health.controller.ts # GET /api/v1/health (200 OK / 503 DB Down)
+│   │   └── health.service.ts    # Verificación de conexión activa a PostgreSQL
+│   ├── location/               # Dominio de ubicaciones (países, departamentos, ciudades)
+│   │   ├── controllers/
+│   │   ├── dao/
+│   │   ├── dto/
+│   │   ├── entities/
+│   │   └── services/
+│   ├── app.module.ts           # Módulo raíz (Config, TypeORM, Observabilidad)
+│   └── main.ts                 # Bootstrap con Helmet, CORS, Swagger y Prefijo /api/v1
+├── test/                       # Pruebas End-to-End (E2E)
+├── docker-compose.yml          # Orquestación de servicios: api, db, pgadmin
+├── Dockerfile                  # Multi-stage build optimizado (builder + production)
+└── .env.example                # Plantilla de variables de entorno
 ```
 
-## Compile and run the project
+---
 
+## 🔐 Variables de Entorno por Ambiente
+
+El sistema valida de forma estricta las variables requeridas al iniciar (`env.validation.ts`). Si falta alguna variable obligatoria (ej. `DB_PASSWORD`), el proceso se detiene inmediatamente mostrando un mensaje claro indicando qué variable falta.
+
+| Variable | Tipo | Requerida | Valor por Defecto | Dev | QA / Staging | Prod | Descripción |
+| :--- | :--- | :---: | :--- | :--- | :--- | :--- | :--- |
+| `PORT` | Number | No | `3000` | `3000` | `3000` | `3000` o asignado por el host | Puerto de escucha HTTP |
+| `NODE_ENV` | String | No | `development` | `development` | `test` / `staging` | `production` | Ambiente de ejecución |
+| `DB_HOST` | String | **Sí** | - | `localhost` (o `db` en docker) | `rds.qa.cine.internal` | `rds.prod.cine.internal` | Host del servidor PostgreSQL |
+| `DB_PORT` | Number | No | `5432` | `5432` | `5432` | `5432` | Puerto del motor PostgreSQL |
+| `DB_USERNAME` | String | **Sí** | - | `postgres` | `cine_qa_user` | `cine_prod_user` | Usuario de base de datos |
+| `DB_PASSWORD` | String | **Sí** | - | `postgres123` | `ClaveSeguraQA` | `ClaveAltaSeguridadProd` | Contraseña de base de datos |
+| `DB_DATABASE` | String | **Sí** | - | `postgres` | `cine_riwi_qa` | `cine_riwi_prod` | Nombre de la base de datos |
+| `DB_SYNCHRONIZE` | Boolean | No | `false` | `true` | `false` | `false` | Sincronización automática de entidades (solo dev) |
+| `PGADMIN_PORT` | Number | No | `5050` | `5050` | N/A | N/A | Puerto web para pgAdmin (dev) |
+| `PGADMIN_DEFAULT_EMAIL` | String | No | `admin@riwi.com` | `admin@riwi.com` | N/A | N/A | Usuario administrador de pgAdmin |
+| `PGADMIN_DEFAULT_PASSWORD` | String | No | `admin1234` | `admin1234` | N/A | N/A | Clave de acceso a pgAdmin |
+| `JWT_SECRET` | String | No | `default_jwt_secret_riwi_cine_2026_super_secure` | Secret Dev | Secret QA | Secret Prod | Clave secreta para firma de Access Tokens |
+| `JWT_EXPIRES_IN` | String | No | `15m` | `15m` | `15m` | `15m` | Tiempo de vida de Access Token (15 min) |
+| `JWT_REFRESH_SECRET` | String | No | `default_jwt_refresh_secret_riwi_cine_2026_super_secure` | Secret Dev | Secret QA | Secret Prod | Clave secreta para Refresh Tokens |
+| `JWT_REFRESH_EXPIRES_IN` | String | No | `7d` | `7d` | `7d` | `7d` | Tiempo de vida de Refresh Token (7 días) |
+
+---
+
+## 🐳 Levantamiento con Docker
+
+El archivo `docker-compose.yml` orquesta 3 servicios interconectados bajo la red `cine-network`:
+- **`db`** (PostgreSQL 16 Alpine con healthcheck integrado)
+- **`api`** (NestJS en build multi-stage alpine, depende de que `db` esté healthy)
+- **`pgadmin`** (Herramienta visual de administración para PostgreSQL)
+
+### 1. Clonar y preparar variables
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
 ```
 
-## Run tests
-
+### 2. Levantar los contenedores
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up -d --build
 ```
 
-## Deployment
+### 3. Verificar estado
+- **API Health:** [http://localhost:3000/api/v1/health](http://localhost:3000/api/v1/health)
+- **Swagger UI:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+- **pgAdmin:** [http://localhost:5050](http://localhost:5050)
+  - Usuario: `admin@riwi.com`
+  - Contraseña: `admin1234`
+  - Host de conexión al crear servidor en pgAdmin: `db` (o `database`), puerto `5432`.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+### 4. Detener contenedores (preservando datos)
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose down
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Observability
+## 💻 Ejecución en Desarrollo Local
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+Si deseas ejecutar la base de datos en Docker y la aplicación directamente en tu máquina:
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+```bash
+# 1. Instalar dependencias
+npm install
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+# 2. Levantar únicamente la base de datos y pgadmin
+docker compose up -d db pgadmin
 
-## Resources
+# 3. Compilar el proyecto
+npm run build
 
-Check out a few resources that may come in handy when working with NestJS:
+# 4. Iniciar en modo desarrollo con recarga en caliente
+npm run start:dev
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 🌐 Endpoints Clave y Documentación
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Todos los endpoints de la API cuentan con prefijo global `/api/v1` (excepto la documentación Swagger):
 
-## Stay in touch
+### 1. Health Check
+- **URL:** `GET /api/v1/health`
+- **Descripción:** Verifica el tiempo de actividad y realiza una consulta activa (`SELECT 1`) a PostgreSQL.
+- **Respuesta Exitosa (200 OK):**
+  ```json
+  {
+    "status": "ok",
+    "timestamp": "2026-09-25T01:00:00.000Z",
+    "uptime": 12.34,
+    "database": {
+      "status": "up"
+    }
+  }
+  ```
+- **Fallo en BD (503 Service Unavailable):**
+  ```json
+  {
+    "statusCode": 503,
+    "timestamp": "2026-09-25T01:00:00.000Z",
+    "path": "/api/v1/health",
+    "method": "GET",
+    "message": {
+      "status": "error",
+      "timestamp": "2026-09-25T01:00:00.000Z",
+      "uptime": 12.34,
+      "database": {
+        "status": "down",
+        "error": "Connection refused"
+      }
+    }
+  }
+  ```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 2. Swagger UI (OpenAPI)
+- **URL:** `http://localhost:3000/api-docs`
+- Incluye la definición completa de modelos DTOs, esquemas y endpoints de `Health`, `Locations` y `Auth` (con soporte interactivo para Bearer JWT).
 
-## License
+### 3. Autenticación y Control de Acceso (HU-007)
+| Método | Endpoint | Descripción | Criterio / Tarea |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Registro de nuevo usuario (estado inicial de correo no verificado) | Base de usuarios |
+| `POST` | `/api/v1/auth/verify-email` | Verificación de correo electrónico | Escenario 3 |
+| `POST` | `/api/v1/auth/login` | Login con credenciales, emite Access Token (15 min) y Refresh Token (7 días) e invalida tokens previos. Bloqueo temporal por 15 min tras 5 intentos fallidos consecutivos | Escenarios 1, 2, 3 / Task 1, 3 |
+| `POST` | `/api/v1/auth/refresh` | Renovación de sesión con rotación de Refresh Token | Escenario 4 / Task 2 |
+| `POST` | `/api/v1/auth/logout` | Cierre de sesión e invalidación del Refresh Token en base de datos | Task 2 |
+| `POST` | `/api/v1/auth/forgot-password`| Solicitud de restablecimiento de contraseña (token temporal de 15 min) | Task 2 |
+| `POST` | `/api/v1/auth/reset-password` | Actualización de contraseña con token, desbloqueo de cuenta y revocación de sesiones | Task 2 |
+| `GET` | `/api/v1/auth/me` | Consulta de perfil del usuario autenticado (requiere Bearer token) | Seguridad |
+| `GET` | `/api/v1/auth/audit` | Consulta de bitácora de auditoría de accesos (IP, dispositivo, timestamp) | Task 4 |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🗄 Base de Datos, Migraciones y Seeders
+
+El proyecto soporta tanto sincronización de esquema (`DB_SYNCHRONIZE=true` en Dev) como migraciones formales versionadas mediante TypeORM:
+
+```bash
+# Generar una nueva migración basada en cambios de entidades
+npm run migration:generate -- src/database/migrations/InitialMigration
+
+# Ejecutar migraciones pendientes
+npm run migration:run
+
+# Revertir la última migración
+npm run migration:revert
+
+# Ejecutar seeder inicial (país, departamento, ciudad)
+npm run seed
+```
+
+---
+
+## 🧪 Pruebas Automatizadas y Calidad
+
+El proyecto utiliza Vitest y Supertest con soporte nativo de TypeScript y módulos ESM:
+
+```bash
+# Ejecutar pruebas unitarias
+npm test
+
+# Ejecutar pruebas End-to-End (E2E)
+npm run test:e2e
+
+# Cobertura de pruebas
+npm run test:cov
+
+# Análisis estático de código (Linter con Oxlint)
+npm run lint
+
+# Formateo de código con Prettier
+npm run format
+```
+
+El pipeline de CI en [`.github/workflows/ci.yml`](.github/workflows/ci.yml) valida automáticamente en cada Pull Request y push a `main` y `develop`:
+1. `npm run lint`
+2. `npm run build`
+3. `npm test`
+4. `npm run test:e2e`
