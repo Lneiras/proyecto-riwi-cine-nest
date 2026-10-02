@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { DepartmentDao } from "../dao/department.dao.js";
-import { ReqCreateAndUpdateDepartmentDto } from "../dto/department.dto.js";
+import { ReqCreateDepartmentDto, ReqUpdateDepartmentDto } from "../dto/department.dto.js";
 import { Department } from "../entities/department.entity.js";
 import { CountryService } from "./country.service.js";
 
@@ -16,7 +16,7 @@ export class DepartmentService {
     return country.id;
   }
 
-  async create(dto: ReqCreateAndUpdateDepartmentDto): Promise<Department> {
+  async create(dto: ReqCreateDepartmentDto): Promise<Department> {
     if (!dto.countryName) throw new NotFoundException("Country name is required");
     const countryId = await this.resolveCountryId(dto.countryName);
     return this.dao.create({ name: dto.name, countryId });
@@ -45,14 +45,14 @@ export class DepartmentService {
     return this.dao.findByCountryId(countryId);
   }
 
-  async update(name: string, dto: ReqCreateAndUpdateDepartmentDto): Promise<Department | null> {
+  async update(name: string, dto: ReqUpdateDepartmentDto): Promise<Department | null> {
     const item = await this.findOneByName(name);
     if (!dto.countryName) throw new NotFoundException("Country name is required");
     const countryId = await this.resolveCountryId(dto.countryName);
     return this.dao.update(item.id, { name: dto.name, countryId });
   }
 
-  async updateInCountry(name: string, countryName: string, dto: ReqCreateAndUpdateDepartmentDto): Promise<Department | null> {
+  async updateInCountry(name: string, countryName: string, dto: ReqUpdateDepartmentDto): Promise<Department | null> {
     const item = await this.findOneByNameInCountry(name, countryName);
     return this.dao.update(item.id, { name: dto.name, countryId: item.countryId });
   }

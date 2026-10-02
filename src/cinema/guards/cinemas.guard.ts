@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, NotFoundException } from "@nestjs/common";
 import { CityService } from "../../location/services/city.service.js";
-import { isNumber } from "class-validator";
 
 
 /**class as a guard, verifies if a cityId is in the query or if the city with that Id doesn't exist

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { CityService } from "../services/city.service.js";
-import { ReqCreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { ReqCreateCityDto, ReqUpdateCityDto } from "../dto/city.dto.js";
 import { City } from "../entities/city.entity.js";
 
 @Controller('countries/:countryName/departments/:departmentName/cities')
@@ -8,7 +8,7 @@ export class CityController {
   constructor(private readonly service: CityService) {}
 
   @Post()
-  create(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Body() dto: ReqCreateAndUpdateCityDto): Promise<City> {
+  create(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Body() dto: ReqCreateCityDto): Promise<City> {
     return this.service.createInDepartment(dto, departmentName, countryName);
   }
 
@@ -23,7 +23,7 @@ export class CityController {
   }
 
   @Patch(':cityName')
-  update(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Param('cityName') cityName: string, @Body() dto: ReqCreateAndUpdateCityDto): Promise<City | null> {
+  update(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Param('cityName') cityName: string, @Body() dto: ReqUpdateCityDto): Promise<City | null> {
     return this.service.updateInDepartment(cityName, departmentName, countryName, dto);
   }
 

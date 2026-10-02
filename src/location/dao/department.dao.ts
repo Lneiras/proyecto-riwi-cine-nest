@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, ILike, In, Repository } from "typeorm";
-import { CreateAndUpdateDepartmentDto } from "../dto/department.dto.js";
+import { CreateDepartmentDto, UpdateDepartmentDto} from "../dto/department.dto.js";
 import { Department } from "../entities/department.entity.js";
 import { City } from "../entities/city.entity.js";
 import { Cinemas } from "../../cinema/entities/cinemas.entity.js";
@@ -16,8 +16,9 @@ export class DepartmentDao {
     private readonly dataSource: DataSource
   ) {}
 
-  async create(dto: CreateAndUpdateDepartmentDto): Promise<Department> {
-    return this.repository.save(this.repository.create(dto));
+  async create(dto: CreateDepartmentDto): Promise<Department> {
+    const newDepartment = this.repository.create(dto);
+    return this.repository.save(newDepartment);
   }
 
   async findAll(): Promise<Department[]> {
@@ -42,7 +43,7 @@ export class DepartmentDao {
     });
   }
 
-  async update(id: number, dto: CreateAndUpdateDepartmentDto): Promise<Department | null> {
+  async update(id: number, dto: UpdateDepartmentDto): Promise<Department | null> {
     await this.repository.update(id, dto);
     return this.findOne(id);
   }

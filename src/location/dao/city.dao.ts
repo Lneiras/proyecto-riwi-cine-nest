@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { DataSource, ILike, In, Repository } from "typeorm";
-import { CreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { UpdateCityDto, CreateCityDto } from "../dto/city.dto.js";
 import { City } from "../entities/city.entity.js";
 import { Cinemas } from "../../cinema/entities/cinemas.entity.js";
 import { Room } from "../../cinema/entities/room.entity.js";
@@ -15,7 +15,7 @@ export class CityDao {
     private readonly dataSource: DataSource
   ) {}
 
-  async create(dto: CreateAndUpdateCityDto): Promise<City> {
+  async create(dto: CreateCityDto): Promise<City> {
     return this.repository.save(this.repository.create(dto));
   }
 
@@ -41,7 +41,7 @@ export class CityDao {
     });
   }
 
-  async update(id: number, dto: CreateAndUpdateCityDto): Promise<City | null> {
+  async update(id: number, dto: UpdateCityDto): Promise<City | null> {
     await this.repository.update(id, dto);
     return this.findOne(id);
   }

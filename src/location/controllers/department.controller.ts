@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
 import { DepartmentService } from "../services/department.service.js";
-import { ReqCreateAndUpdateDepartmentDto } from "../dto/department.dto.js";
+import { ReqCreateDepartmentDto, ReqUpdateDepartmentDto } from "../dto/department.dto.js";
 import { Department } from "../entities/department.entity.js";
 
 @Controller('countries/:countryName/departments')
@@ -8,7 +8,7 @@ export class DepartmentController {
   constructor(private readonly service: DepartmentService) {}
 
   @Post()
-  create(@Param('countryName') countryName: string, @Body() dto: ReqCreateAndUpdateDepartmentDto): Promise<Department> {
+  create(@Param('countryName') countryName: string, @Body() dto: ReqCreateDepartmentDto): Promise<Department> {
     return this.service.create({ ...dto, countryName });
   }
 
@@ -23,7 +23,7 @@ export class DepartmentController {
   }
 
   @Patch(':departmentName')
-  update(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Body() dto: ReqCreateAndUpdateDepartmentDto): Promise<Department | null> {
+  update(@Param('countryName') countryName: string, @Param('departmentName') departmentName: string, @Body() dto: ReqUpdateDepartmentDto): Promise<Department | null> {
     return this.service.updateInCountry(departmentName, countryName, dto);
   }
 

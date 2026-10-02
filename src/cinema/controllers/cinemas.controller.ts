@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { CinemasService } from "../services/cinemas.service.js";
 import { ReqCreateCinemaDto, ReqUpdateCinemaDto } from "../dto/cinemas.dto.js";
 import { Cinemas } from "../entities/cinemas.entity.js";
+import { CityExists } from "../guards/cinemas.guard.js";
 
+@UseGuards(CityExists)
 @Controller('countries/:countryName/departments/:departmentName/cities/:cityName/cinemas')
 export class CinemasController {
   constructor(private readonly cinemasService: CinemasService) {}

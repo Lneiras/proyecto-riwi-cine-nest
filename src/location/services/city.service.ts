@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CityDao } from "../dao/city.dao.js";
-import { ReqCreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { ReqCreateCityDto, ReqUpdateCityDto } from "../dto/city.dto.js";
 import { City } from "../entities/city.entity.js";
 import { DepartmentService } from "./department.service.js";
 
@@ -16,13 +16,13 @@ export class CityService {
     return department.id;
   }
 
-  async create(dto: ReqCreateAndUpdateCityDto): Promise<City> {
+  async create(dto: ReqCreateCityDto): Promise<City> {
     if (!dto.departmentName) throw new NotFoundException("Department name is required");
     const departmentId = await this.resolveDepartmentId(dto.departmentName);
     return this.dao.create({ name: dto.name, departmentId });
   }
 
-  async createInDepartment(dto: ReqCreateAndUpdateCityDto, departmentName: string, countryName: string): Promise<City> {
+  async createInDepartment(dto: ReqCreateCityDto, departmentName: string, countryName: string): Promise<City> {
     const department = await this.departmentService.findOneByNameInCountry(departmentName, countryName);
     return this.dao.create({ name: dto.name, departmentId: department.id });
   }
@@ -68,14 +68,14 @@ export class CityService {
     return this.dao.findByDepartmentId(department.id);
   }
 
-  async update(name: string, dto: ReqCreateAndUpdateCityDto): Promise<City | null> {
+  async update(name: string, dto: ReqUpdateCityDto): Promise<City | null> {
     const item = await this.findOneByName(name);
     if (!dto.departmentName) throw new NotFoundException("Department name is required");
     const departmentId = await this.resolveDepartmentId(dto.departmentName);
     return this.dao.update(item.id, { name: dto.name, departmentId });
   }
 
-  async updateInDepartment(name: string, departmentName: string, countryName: string, dto: ReqCreateAndUpdateCityDto): Promise<City | null> {
+  async updateInDepartment(name: string, departmentName: string, countryName: string, dto: ReqUpdateCityDto): Promise<City | null> {
     const item = await this.findOneByNameInDepartment(name, departmentName, countryName);
     return this.dao.update(item.id, { name: dto.name, departmentId: item.departmentId });
   }
