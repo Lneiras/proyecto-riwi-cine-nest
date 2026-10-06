@@ -277,7 +277,8 @@ export class AuthService {
         ipAddress: ip,
         userAgent,
         status: "FAILED",
-        details: error.message || "Error al renovar token",
+        details:
+          error instanceof Error ? error.message : "Error al renovar token",
       });
 
       throw new UnauthorizedException(
