@@ -57,6 +57,7 @@ async function bootstrap() {
       "Auth",
       "Endpoints de autenticación segura, control de sesiones y auditoría (HU-007)",
     )
+    .addTag("Cinemas", "Endpoints de gestión de cines, salas, filas y asientos")
     .addBearerAuth()
     .build();
 

@@ -6,50 +6,94 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
 } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { CityService } from "../services/city.service.js";
+import { ReqCreateCityDto, ReqUpdateCityDto } from "../dto/city.dto.js";
+import { City } from "../entities/city.entity.js";
 
 @ApiTags("Locations")
-@Controller("cities")
+@Controller("countries/:countryName/departments/:departmentName/cities")
 export class CityController {
-  constructor(private readonly cityService: CityService) {}
+  constructor(private readonly service: CityService) {}
 
-  @Post("create")
-  @ApiOperation({ summary: "Crear una nueva ciudad" })
-  async create(@Body() createCity: CreateAndUpdateCityDto) {
-    return this.cityService.create(createCity);
+  @Post()
+  @ApiOperation({ summary: "Crear una nueva ciudad dentro de un departamento y país" })
+  @ApiParam({ name: "countryName", description: "Nombre del país", example: "Colombia" })
+  @ApiParam({ name: "departmentName", description: "Nombre del departamento", example: "Antioquia" })
+  create(
+    @Param("countryName") countryName: string,
+    @Param("departmentName") departmentName: string,
+    @Body() dto: ReqCreateCityDto,
+  ): Promise<City> {
+    return this.service.createInDepartment(dto, departmentName, countryName);
   }
 
-  @Get("allcities")
-  @ApiOperation({ summary: "Obtener lista de todas las ciudades" })
-  async getAll() {
-    return this.cityService.findAll();
+  @Get()
+  @ApiOperation({ summary: "Obtener lista de ciudades pertenecientes a un departamento y país" })
+  @ApiParam({ name: "countryName", description: "Nombre del país", example: "Colombia" })
+  @ApiParam({ name: "departmentName", description: "Nombre del departamento", example: "Antioquia" })
+  findAll(
+    @Param("countryName") countryName: string,
+    @Param("departmentName") departmentName: string,
+  ): Promise<City[]> {
+    return this.service.findByDepartmentAndCountry(departmentName, countryName);
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Obtener una ciudad por su ID" })
-  async findOne(@Param("id", ParseIntPipe) id: number) {
-    return this.cityService.findOne(id);
+  @Get(":cityName")
+  @ApiOperation({ summary: "Obtener una ciudad por su nombre dentro de un departamento y país" })
+  @ApiParam({ name: "countryName", description: "Nombre del país", example: "Colombia" })
+  @ApiParam({ name: "departmentName", description: "Nombre del departamento", example: "Antioquia" })
+  @ApiParam({ name: "cityName", description: "Nombre de la ciudad", example: "Medellín" })
+  findOne(
+    @Param("countryName") countryName: string,
+    @Param("departmentName") departmentName: string,
+    @Param("cityName") cityName: string,
+  ): Promise<City> {
+    return this.service.findOneByNameInDepartment(cityName, departmentName, countryName);
   }
 
-  @Patch(":id/update")
-  @ApiOperation({ summary: "Actualizar datos de una ciudad" })
-  async update(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() updateCity: CreateAndUpdateCityDto,
-  ) {
-    return this.cityService.update(id, updateCity);
+  @Patch(":cityName")
+  @ApiOperation({ summary: "Actualizar datos de una ciudad dentro de un departamento y país" })
+  @ApiParam({ name: "countryName", description: "Nombre del país", example: "Colombia" })
+  @ApiParam({ name: "departmentName", description: "Nombre del departamento", example: "Antioquia" })
+  @ApiParam({ name: "cityName", description: "Nombre actual de la ciudad", example: "Medellín" })
+  update(
+    @Param("countryName") countryName: string,
+    @Param("departmentName") departmentName: string,
+    @Param("cityName") cityName: string,
+    @Body() dto: ReqUpdateCityDto,
+  ): Promise<City | null> {
+    return this.service.updateInDepartment(cityName, departmentName, countryName, dto);
   }
 
-  @Delete(":id")
+  @Delete(":cityName/soft-delete")
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Eliminar una ciudad por su ID" })
-  async delete(@Param("id", ParseIntPipe) id: number) {
-    return this.cityService.delete(id);
+  @ApiOperation({ summary: "Desactivar una ciudad de forma lógica (soft-delete en cascada)" })
+  @ApiParam({ name: "countryName", description: "Nombre del país", example: "Colombia" })
+  @ApiParam({ name: "departmentName", description: "Nombre del departamento", example: "Antioquia" })
+  @ApiParam({ name: "cityName", description: "Nombre de la ciudad", example: "Medellín" })
+  softDelete(
+    @Param("countryName") countryName: string,
+    @Param("departmentName") departmentName: string,
+    @Param("cityName") cityName: string,
+  ): Promise<void> {
+    return this.service.softDeleteInDepartment(cityName, departmentName, countryName);
+  }
+
+  @Delete(":cityName")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Eliminar físicamente una ciudad por su nombre" })
+  @ApiParam({ name: "countryName", description: "Nombre del país", example: "Colombia" })
+  @ApiParam({ name: "departmentName", description: "Nombre del departamento", example: "Antioquia" })
+  @ApiParam({ name: "cityName", description: "Nombre de la ciudad", example: "Medellín" })
+  delete(
+    @Param("countryName") countryName: string,
+    @Param("departmentName") departmentName: string,
+    @Param("cityName") cityName: string,
+  ): Promise<void> {
+    return this.service.deleteInDepartment(cityName, departmentName, countryName);
   }
 }

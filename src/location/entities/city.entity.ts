@@ -3,11 +3,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { Department } from "./department.entity.js";
+import { Cinemas } from "../../cinema/entities/cinemas.entity.js";
 
 @Entity("cities")
+@Unique(["departmentId", "name"])
 export class City {
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,4 +28,10 @@ export class City {
   })
   @JoinColumn({ name: "department_id" })
   department: Department;
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
+  @OneToMany(() => Cinemas, (cinema) => cinema.city)
+  cinemas: Cinemas[]
 }
