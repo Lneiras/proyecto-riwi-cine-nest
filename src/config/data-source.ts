@@ -4,6 +4,10 @@ import { config } from "dotenv";
 import { Country } from "../location/entities/country.entity.js";
 import { Department } from "../location/entities/department.entity.js";
 import { City } from "../location/entities/city.entity.js";
+import { Cinemas } from "../cinema/entities/cinemas.entity.js";
+import { Room } from "../cinema/entities/room.entity.js";
+import { Row } from "../cinema/entities/row.entity.js";
+import { Seat } from "../cinema/entities/seats.entity.js";
 import { User } from "../auth/entities/user.entity.js";
 import { RefreshToken } from "../auth/entities/refresh-token.entity.js";
 import { PasswordResetToken } from "../auth/entities/password-reset-token.entity.js";
@@ -22,6 +26,10 @@ export const dataSourceOptions: DataSourceOptions = {
     Country,
     Department,
     City,
+    Cinemas,
+    Room,
+    Row,
+    Seat,
     User,
     RefreshToken,
     PasswordResetToken,
