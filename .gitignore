@@ -25,3 +25,9 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+
+# SonarQube / Coverage
+# SonarQube temporal files
+.scannerwork/
+# Vitest / Jest coverage reports
+coverage/
