@@ -14,7 +14,7 @@
     "start:dev": "nest start --watch main.ts",
     "start:debug": "nest start --debug --watch main.ts",
     "start:prod": "node dist/main",
-    "lint": "oxlint src/ test/",
+    "lint": "eslint src test",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
@@ -52,6 +52,7 @@
     "typeorm": "^1.1.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@nestjs/cli": "^12.0.0",
     "@nestjs/mau": "^0.2.6",
     "@nestjs/schematics": "^12.0.0",
@@ -66,11 +67,13 @@
     "dotenv-cli": "^11.0.0",
     "husky": "^9.1.7",
     "oxlint": "^1.58.0",
+    "eslint": "^10.11.0",
     "prettier": "^3.4.2",
     "sonarqube-scanner": "^5.0.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.71.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^4.1.2"
   }

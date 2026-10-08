@@ -29,7 +29,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if (typeof res === "string") {
         message = res;
       } else if (typeof res === "object" && res !== null) {
-        message = (res as any).message || res;
+        message = (res as { message?: string | object }).message || res;
       }
     }
 
@@ -41,7 +41,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message,
     };
 
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (status >= Number(HttpStatus.INTERNAL_SERVER_ERROR)) {
       this.logger.error(
         `[${request.method}] ${request.url} - Status: ${status} - Error: ${
           exception instanceof Error

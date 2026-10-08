@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { JwtModule } from "@nestjs/jwt";
+import { JwtModule, JwtSignOptions } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./entities/user.entity.js";
@@ -36,7 +36,7 @@ import { JwtAuthGuard } from "./guards/jwt-auth.guard.js";
           "default_jwt_secret_riwi_cine_2026_super_secure",
         signOptions: {
           expiresIn: (configService.get<string>("JWT_EXPIRES_IN") ||
-            "15m") as any,
+            "15m") as JwtSignOptions["expiresIn"],
         },
       }),
     }),
