@@ -2,7 +2,7 @@ FROM jenkins/jenkins:lts-jdk17
 
 USER root
 
-# Instalar dependencias necesarias, Docker CLI y Node.js 22
+# install dependencias necesarias, Docker CLI y Node.js 22
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
