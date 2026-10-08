@@ -261,3 +261,12 @@ El pipeline de CI en [`.github/workflows/ci.yml`](.github/workflows/ci.yml) vali
 2. `npm run build`
 3. `npm test`
 4. `npm run test:e2e`
+
+---
+
+## 🚀 Pipelines CI/CD y Calidad (DevOps)
+
+El proyecto cuenta con guías detalladas para la infraestructura de automatización:
+- **SonarQube (Día 3):** Consulta la guía en [`sonarqubeguide.md`](./sonarqubeguide.md) para generar métricas locales y cobertura.
+- **Jenkins CI (Día 4):** Consulta la guía en [`jenkinsguide.md`](./jenkinsguide.md) para configurar el pipeline de Jenkins, webhooks y Quality Gate automático.
+

@@ -2,16 +2,34 @@ import 'dotenv/config';
 import sonarqubeScanner from 'sonarqube-scanner';
 
 async function runAnalysis() {
+  const options = {};
+
+  const token = process.env.SONAR_TOKEN || process.env.SONAR_AUTH_TOKEN;
+  if (token) {
+    options['sonar.token'] = token;
+    options['sonar.login'] = token;
+  }
+
+  if (process.env.SONAR_HOST_URL) {
+    options['sonar.host.url'] = process.env.SONAR_HOST_URL;
+  }
+
   try {
-    await sonarqubeScanner({
-      options: {
-        'sonar.token': process.env.SONAR_TOKEN,
-        'sonar.login': process.env.SONAR_TOKEN
-      }
-    }, () => {}); // <--- Esta función vacía evita el TypeError interno
-    console.log('¡Análisis completado con éxito!');
+    await sonarqubeScanner(
+      {
+        options,
+      },
+      (error) => {
+        if (error) {
+          console.error('❌ Error durante el análisis de SonarQube:', error);
+          process.exit(1);
+        }
+        console.log('✅ ¡Análisis de SonarQube completado con éxito!');
+      },
+    );
   } catch (error) {
-    console.error('Error durante el análisis:', error);
+    console.error('❌ Error durante el análisis de SonarQube:', error);
+    process.exit(1);
   }
 }
 
