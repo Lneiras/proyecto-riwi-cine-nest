@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { JwtService } from "@nestjs/jwt";
+import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 import { randomBytes } from "node:crypto";
 import { RefreshTokenDao } from "../dao/refresh-token.dao.js";
 import { User } from "../entities/user.entity.js";
@@ -33,7 +33,7 @@ export class TokenService {
 
     return this.jwtService.sign(payload, {
       secret,
-      expiresIn: expiresIn as any,
+      expiresIn: expiresIn as JwtSignOptions["expiresIn"],
     });
   }
 

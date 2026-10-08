@@ -65,5 +65,5 @@ if (
   process.argv[1]?.endsWith("run-seeds.js") ||
   process.argv[1]?.endsWith("run-seeds.ts")
 ) {
-  runAllSeeds();
+  void runAllSeeds();
 }

@@ -15,6 +15,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import type { Request } from "express";
+import type { User } from "../entities/user.entity.js";
 import { AuthService } from "../services/auth.service.js";
 import { AuditService } from "../services/audit.service.js";
 import { LoginDto } from "../dto/login.dto.js";
@@ -41,6 +42,11 @@ function extractClientInfo(req: Request): { ip: string; userAgent: string } {
 
   const userAgent = req.headers["user-agent"] || "Unknown";
   return { ip, userAgent };
+}
+
+// Request de Express al que Passport le agrega el usuario autenticado
+interface AuthenticatedRequest extends Request {
+  user: User;
 }
 
 @ApiTags("Auth")
@@ -186,7 +192,7 @@ export class AuthController {
     status: 401,
     description: "Token no proporcionado o inválido",
   })
-  async getProfile(@Req() req: any) {
+  getProfile(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     return {
       id: user.id,
@@ -206,7 +212,7 @@ export class AuthController {
       "Retorna los registros de auditoría de acceso asociados al usuario autenticado.",
   })
   @ApiResponse({ status: 200, description: "Lista de registros de auditoría" })
-  async getAuditLogs(@Req() req: any) {
+  async getAuditLogs(@Req() req: AuthenticatedRequest) {
     return this.auditService.getUserAuditLogs(req.user.id);
   }
 }

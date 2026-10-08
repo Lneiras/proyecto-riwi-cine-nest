@@ -25,12 +25,17 @@ export default defineConfig(
         },
     },
 
-    // Reglas específicas para los tests
+    // Reglas específicas para los tests: los mocks son "any" por naturaleza,
+    // así que estas reglas dan ruido en vez de valor
     {
-        files: ["test/**/*.ts"],
+        files: ["**/*.spec.ts", "test/**/*.ts"],
 
         rules: {
+            "@typescript-eslint/no-unsafe-assignment": "off",
+            "@typescript-eslint/no-unsafe-call": "off",
+            "@typescript-eslint/no-unsafe-member-access": "off",
             "@typescript-eslint/no-unsafe-argument": "off",
+            "@typescript-eslint/no-unnecessary-type-assertion": "off",
         },
     },
 );

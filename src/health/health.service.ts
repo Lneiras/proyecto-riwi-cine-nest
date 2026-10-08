@@ -40,15 +40,17 @@ export class HealthService {
           status: "up",
         },
       };
-    } catch (error: any) {
-      this.logger.error(`Database health check failed: ${error.message}`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Database connection error";
+      this.logger.error(`Database health check failed: ${message}`);
       throw new ServiceUnavailableException({
         status: "error",
         timestamp,
         uptime,
         database: {
           status: "down",
-          error: error.message || "Database connection error",
+          error: message,
         },
       });
     }

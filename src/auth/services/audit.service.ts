@@ -18,7 +18,7 @@ export class AuditService {
       return await this.authAuditDao.log(data);
     } catch (error) {
       this.logger.error(
-        `Error saving audit log: ${error instanceof Error ? error.message : error}`,
+        `Error saving audit log: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
