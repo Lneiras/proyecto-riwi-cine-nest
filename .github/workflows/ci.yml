@@ -21,10 +21,10 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Run linter
-        run: npm run lint
+        run: npx oxlint src/ test/ # 👈 CAMBIADO: Ejecuta oxlint directamente con npx para evitar el error usage
 
   build-and-test:
     name: Build & Test
@@ -49,4 +49,4 @@ jobs:
         run: npx vitest run
 
       - name: Run E2E Tests
-        run: npm run test:e2e
+        run: npx vitest run --config ./vitest.config.e2e.ts # 👈 CAMBIADO: Asegura también los tests E2E
