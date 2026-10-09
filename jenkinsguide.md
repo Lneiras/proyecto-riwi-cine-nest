@@ -2,6 +2,10 @@
 
 Este documento detalla el paso a paso para configurar **Jenkins**, enlazarlo con **GitHub** y **SonarQube** en Docker, y poner en marcha el pipeline de **Integración Continua (CI)** para **Riwi Cine NestJS API**.
 
+> **Actualización Día 5:** el `Jenkinsfile` ahora extiende este flujo con
+> Build, Deploy y Health Check. La configuración vigente de CD, credenciales
+> y ramas está en [`docs/devops-dia5.md`](./docs/devops-dia5.md).
+
 ---
 
 ## 🏗 Arquitectura de Red y Contenedores
@@ -119,7 +123,10 @@ docker compose ps
      - **URL:** `http://riwi-cine-jenkins:8080/sonarqube-webhook/`
    - Clic en **Create**.
 
-> 💡 **Nota:** Si por alguna razón el webhook no está configurado, el `Jenkinsfile` incluye automáticamente un mecanismo de respaldo (`fallback`) que consulta directamente la API REST de SonarQube (`GET /api/qualitygates/project_status`), garantizando que la validación nunca se quede bloqueada.
+> **Importante:** el webhook es obligatorio para `waitForQualityGate`. Si
+> falta, el pipeline vence por timeout y falla; nunca continúa al despliegue.
+> El comando `npm run sonar:gate` queda como diagnóstico manual y consulta
+> exclusivamente el `analysisId` generado por la ejecución actual.
 
 ---
 
@@ -153,4 +160,12 @@ docker compose ps
    - `Coverage` ➔ Verde
    - `SonarQube Analysis` ➔ Verde
    - `Quality Gate` ➔ Verde (Aprobado)
+   - `Build` ➔ Verde
+   - `Deploy` ➔ Verde (solo `main` o ejecución manual autorizada)
+   - `Health Check` ➔ Verde
 3. Si alguna etapa falla (por ejemplo, si introduces un error de sintaxis en `src/` o rompes una prueba unitaria), Jenkins detendrá inmediatamente el pipeline, marcará la etapa en **Rojo** y no permitirá avanzar al despliegue.
+
+Para probar CD desde `DevOps-project`, usa **Build with Parameters** y activa
+`DEPLOY_FROM_DEVOPS_PROJECT`. Para despliegue automático configura el job
+multibranch sobre `main`; las ramas de funcionalidades y los pull requests
+solo ejecutan las validaciones de CI.

@@ -31,7 +31,7 @@ async function bootstrap() {
 
   // Global API Prefix
   app.setGlobalPrefix("api/v1", {
-    exclude: ["api-docs", "api-docs-json", "health"],
+    exclude: ["api-docs", "api-docs-json"],
   });
 
   // Global DTO Validation Pipe

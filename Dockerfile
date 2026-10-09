@@ -1,9 +1,10 @@
 FROM node:22-alpine AS builder
 
 WORKDIR /app
+ENV HUSKY=0
 
 COPY package*.json ./
-RUN npm i
+RUN npm ci
 
 COPY . ./
 RUN npm run build
@@ -14,7 +15,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package*.json ./
-RUN npm i --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
 

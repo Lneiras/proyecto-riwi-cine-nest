@@ -98,7 +98,7 @@ El archivo `docker-compose.yml` orquesta los servicios de la aplicación y la in
 - **`api`** (NestJS en build multi-stage alpine, depende de que `db` esté healthy)
 - **`pgadmin`** (Herramienta visual de administración para PostgreSQL en el puerto `5050`)
 - **`sonar-db`** (Base de datos PostgreSQL 16 dedicada para SonarQube con healthcheck)
-- **`sonarqube`** (SonarQube Community LTS en el puerto `9000` para análisis estático y métricas de calidad)
+- **`sonarqube`** (SonarQube Community Build compatible con TypeScript 6 en el puerto `9000`)
 - **`jenkins`** (Servidor de CI/CD Jenkins LTS en el puerto `8080` y agente en `50000`, equipado con Docker CLI y Node.js)
 
 ### 1. Clonar y preparar variables
@@ -269,4 +269,5 @@ El pipeline de CI en [`.github/workflows/ci.yml`](.github/workflows/ci.yml) vali
 El proyecto cuenta con guías detalladas para la infraestructura de automatización:
 - **SonarQube (Día 3):** Consulta la guía en [`sonarqubeguide.md`](./sonarqubeguide.md) para generar métricas locales y cobertura.
 - **Jenkins CI (Día 4):** Consulta la guía en [`jenkinsguide.md`](./jenkinsguide.md) para configurar el pipeline de Jenkins, webhooks y Quality Gate automático.
+- **Jenkins CD (Día 5):** Consulta [`docs/devops-dia5.md`](./docs/devops-dia5.md) para configurar credenciales, desplegar con Docker Compose y comprobar el Health Check.
 

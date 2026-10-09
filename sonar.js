@@ -7,7 +7,6 @@ async function runAnalysis() {
   const token = process.env.SONAR_TOKEN || process.env.SONAR_AUTH_TOKEN;
   if (token) {
     options['sonar.token'] = token;
-    options['sonar.login'] = token;
   }
 
   if (process.env.SONAR_HOST_URL) {

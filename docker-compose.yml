@@ -100,7 +100,8 @@ services:
   # 5. SonarQube (Inspección continua de código y seguridad)
   # =========================================================================
   sonarqube:
-    image: sonarqube:lts-community
+    # SonarQube 9.9 (old lts-community) cannot analyze this project's TypeScript 6 config.
+    image: sonarqube:26.9.0.129388-community
     container_name: riwi-cine-sonarqube
     depends_on:
       sonar-db:
@@ -152,8 +153,14 @@ networks:
 volumes:
   postgres_data:
   pgadmin_data:
+  # Nombres nuevos: evitan migrar accidentalmente una base creada por SonarQube 9.9.
+  # Los volúmenes Compose antiguos permanecen intactos para respaldo o rollback.
   sonar_db_data:
+    name: riwi-cine-sonar26-db-data
   sonarqube_data:
+    name: riwi-cine-sonar26-data
   sonarqube_logs:
+    name: riwi-cine-sonar26-logs
   sonarqube_extensions:
+    name: riwi-cine-sonar26-extensions
   jenkins_data:
