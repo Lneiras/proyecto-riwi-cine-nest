@@ -1,35 +1,38 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CountryDao } from "../dao/country.dao.js";
 import { CreateAndUpdateCountryDto } from "../dto/country.dto.js";
+import { Country } from "../entities/country.entity.js";
 
 @Injectable()
 export class CountryService {
-  constructor(private readonly countryDao: CountryDao) {}
+  constructor(private readonly dao: CountryDao) {}
 
-  async create(createCountry: CreateAndUpdateCountryDto) {
-    return this.countryDao.create(createCountry);
+  async create(dto: CreateAndUpdateCountryDto): Promise<Country> {
+    return this.dao.create(dto);
   }
 
-  async findAll() {
-    return this.countryDao.findAll();
+  async findAll(): Promise<Country[]> {
+    return this.dao.findAll();
   }
 
-  async findOne(id: number) {
-    const country = await this.countryDao.findOne(id);
-    if (!country) {
-      throw new NotFoundException(`The country with ID ${id} does not exist`);
-    }
-    return country;
+  async findOneByName(name: string): Promise<Country> {
+    const item = await this.dao.findOneByName(name.trim().replace(/\s+/g, ' '));
+    if (!item) throw new NotFoundException("Country not found");
+    return item;
   }
 
-  async update(id: number, data: CreateAndUpdateCountryDto) {
-    // Ensure the country exists before updating it.
-    await this.findOne(id);
-    return this.countryDao.update(id, data);
+  async update(name: string, dto: CreateAndUpdateCountryDto): Promise<Country | null> {
+    const item = await this.findOneByName(name);
+    return this.dao.update(item.id, dto);
   }
 
-  async delete(id: number) {
-    await this.findOne(id);
-    return this.countryDao.delete(id);
+  async softDelete(name: string): Promise<void> {
+    const item = await this.findOneByName(name);
+    return this.dao.softDelete(item.id);
+  }
+
+  async delete(name: string): Promise<void> {
+    const item = await this.findOneByName(name);
+    return this.dao.delete(item.id);
   }
 }

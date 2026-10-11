@@ -6,6 +6,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { LocationModule } from "./location/location.module.js";
 import { HealthModule } from "./health/health.module.js";
 import { AuthModule } from "./auth/auth.module.js";
+import { CinemaModule } from "./cinema/cinema.module.js";
 import { validateEnvironment } from "./config/env.validation.js";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter.js";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor.js";
@@ -39,6 +40,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       }),
     }),
     LocationModule,
+    CinemaModule,
     HealthModule,
     AuthModule,
   ],

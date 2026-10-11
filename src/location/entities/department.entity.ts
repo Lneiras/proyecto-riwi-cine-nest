@@ -5,11 +5,13 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { City } from "./city.entity.js";
 import { Country } from "./country.entity.js";
 
 @Entity("departments")
+@Unique(["countryId", "name"])
 export class Department {
   @PrimaryGeneratedColumn()
   id: number;
@@ -28,6 +30,9 @@ export class Department {
   country: Country;
 
   // A department can have multiple cities.
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
   @OneToMany(() => City, (city) => city.department)
   cities: City[];
 }
