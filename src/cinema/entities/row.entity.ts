@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, Unique, type Relation } from 'typeorm';
 import { Room } from './room.entity.js';
 import { Seat } from './seats.entity.js';
 
@@ -20,7 +20,7 @@ export class Row {
   // MUCHAS filas pertenecen a UNA sala
   @ManyToOne(() => Room, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'roomId' })
-  room: Room;
+  room: Relation<Room>;
 
   // RELACIÓN INVERSA: UNA fila tiene MUCHOS asientos
   @Column({ type: 'boolean', default: true })

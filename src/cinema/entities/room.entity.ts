@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, type Relation } from "typeorm";
 import { Cinemas } from "./cinemas.entity.js";
 import { Row } from "./row.entity.js";
 
@@ -25,7 +25,7 @@ export class Room {
         onDelete: "CASCADE"
     })
     @JoinColumn({name: "cinema_id"})
-    cinema: Cinemas
+    cinema: Relation<Cinemas>;
 
     @Column({ name: "cinema_id"})
     cinemaId: number;
