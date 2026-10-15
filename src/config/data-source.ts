@@ -41,4 +41,3 @@ export const dataSourceOptions: DataSourceOptions = {
 };
 
 export const AppDataSource = new DataSource(dataSourceOptions);
-export default AppDataSource;

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique, type Relation } from 'typeorm';
 import { Row } from './row.entity.js';
 
 @Entity('seats')
@@ -19,7 +19,7 @@ export class Seat {
   // MUCHOS asientos pertenecen a UNA fila
   @ManyToOne(() => Row, (row) => row.seats, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'rowId' })
-  row: Row;
+  row: Relation<Row>;
 
     @Column({ type: 'boolean', default: true })
     isActive: boolean;
