@@ -1,11 +1,15 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Movie } from "../entities/movie.entity.js";
+import { MoviesDao } from "../dao/movies.dao.js";
+import { MoviesService } from "../services/movies.service.js";
+import { MoviesController } from "../controllers/movies.controller.js";
 
 // Módulo del subdominio Películas.
-// Por ahora solo registra la entidad con forFeature para que TypeORM la
-// conozca (autoLoadEntities). En la Task 2 se agregan DAO, service y controller.
+// forFeature registra Movie y permite inyectar su Repository en el DAO.
 @Module({
   imports: [TypeOrmModule.forFeature([Movie])],
+  controllers: [MoviesController],
+  providers: [MoviesDao, MoviesService],
 })
 export class MoviesModule {}

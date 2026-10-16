@@ -58,6 +58,10 @@ async function bootstrap() {
       "Endpoints de autenticación segura, control de sesiones y auditoría (HU-007)",
     )
     .addTag("Cinemas", "Endpoints de gestión de cines, salas, filas y asientos")
+    .addTag(
+      "Movies",
+      "Cartelera de películas: semanal, del día y con filtros combinados (HU-003)",
+    )
     .addBearerAuth()
     .build();
 
