@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  type Relation,
 } from "typeorm";
 import { Department } from "./department.entity.js";
 import { Cinemas } from "../../cinema/entities/cinemas.entity.js";
@@ -27,7 +28,7 @@ export class City {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "department_id" })
-  department: Department;
+  department: Relation<Department>;
 
   @Column({ type: 'boolean', default: true })
   isActive: boolean;

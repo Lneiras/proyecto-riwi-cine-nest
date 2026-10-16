@@ -37,9 +37,7 @@ describe("HealthService", () => {
   });
 
   it("should throw ServiceUnavailableException when database query fails", async () => {
-    dataSourceMock.query.mockRejectedValueOnce(
-      new Error("Connection refused"),
-    );
+    dataSourceMock.query.mockRejectedValueOnce(new Error("Connection refused"));
 
     await expect(service.check()).rejects.toThrow(ServiceUnavailableException);
   });

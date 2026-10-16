@@ -1,55 +1,108 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { typeRoom } from "../entities/room.entity.js";
 
 /** Lo que el frontend envía */
 export class ReqCreateRoomDto {
-    @IsNumber()
-    number: number;
+  @ApiProperty({
+    description: "Número de sala",
+    example: 1,
+  })
+  @IsNumber()
+  number: number;
 
-    @IsEnum(typeRoom)
-    type: typeRoom;
+  @ApiProperty({
+    description: "Tipo de formato de la sala",
+    enum: typeRoom,
+    example: typeRoom["2d"],
+  })
+  @IsEnum(typeRoom)
+  type: typeRoom;
 
-    @IsOptional()
-    @IsString()
-    cinemaName?: string;
+  @ApiPropertyOptional({
+    description: "Nombre del cine al que pertenece la sala",
+    example: "Cine Colombia Santa Fe",
+  })
+  @IsOptional()
+  @IsString()
+  cinemaName?: string;
 }
 
 export class ReqUpdateRoomDto {
-    @IsOptional()
-    @IsNumber()
-    number?: number;
+  @ApiPropertyOptional({
+    description: "Nuevo número de sala",
+    example: 2,
+  })
+  @IsOptional()
+  @IsNumber()
+  number?: number;
 
-    @IsOptional()
-    @IsEnum(typeRoom)
-    type?: typeRoom;
+  @ApiPropertyOptional({
+    description: "Nuevo tipo de formato de la sala",
+    enum: typeRoom,
+    example: typeRoom["3d"],
+  })
+  @IsOptional()
+  @IsEnum(typeRoom)
+  type?: typeRoom;
 
-    @IsOptional()
-    @IsString()
-    cinemaName?: string; // frontend manda nombre, no id
+  @ApiPropertyOptional({
+    description: "Nombre del cine al que pertenece la sala",
+    example: "Cine Colombia Santa Fe",
+  })
+  @IsOptional()
+  @IsString()
+  cinemaName?: string;
 }
 
 /** Uso interno (dao) */
 export class CreateRoomDto {
-    @IsNumber()
-    number: number;
+  @ApiProperty({
+    description: "Número de sala",
+    example: 1,
+  })
+  @IsNumber()
+  number: number;
 
-    @IsEnum(typeRoom)
-    type: typeRoom;
+  @ApiProperty({
+    description: "Tipo de formato de la sala",
+    enum: typeRoom,
+    example: typeRoom["2d"],
+  })
+  @IsEnum(typeRoom)
+  type: typeRoom;
 
-    @IsNumber()
-    cinemaId: number;
+  @ApiProperty({
+    description: "ID del cine",
+    example: 1,
+  })
+  @IsNumber()
+  cinemaId: number;
 }
 
 export class UpdateRoomDto {
-    @IsOptional()
-    @IsNumber()
-    number?: number;
+  @ApiPropertyOptional({
+    description: "Nuevo número de sala",
+    example: 2,
+  })
+  @IsOptional()
+  @IsNumber()
+  number?: number;
 
-    @IsOptional()
-    @IsEnum(typeRoom)
-    type?: typeRoom;
+  @ApiPropertyOptional({
+    description: "Nuevo tipo de formato de la sala",
+    enum: typeRoom,
+    example: typeRoom["3d"],
+  })
+  @IsOptional()
+  @IsEnum(typeRoom)
+  type?: typeRoom;
 
-    @IsOptional()
-    @IsNumber()
-    cinemaId?: number;
+  @ApiPropertyOptional({
+    description: "ID del cine",
+    example: 1,
+  })
+  @IsOptional()
+  @IsNumber()
+  cinemaId?: number;
 }

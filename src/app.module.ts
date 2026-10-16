@@ -3,13 +3,13 @@ import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { createObserveModule } from "@nestjs/observe";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { MoviesModule } from './movies/movies.module.js';
 import { LocationModule } from "./location/location.module.js";
 import { HealthModule } from "./health/health.module.js";
+import { AuthModule } from "./auth/auth.module.js";
+import { CinemaModule } from "./cinema/cinema.module.js";
 import { validateEnvironment } from "./config/env.validation.js";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter.js";
 import { LoggingInterceptor } from "./common/interceptors/logging.interceptor.js";
-import { CinemaModule } from './cinema/cinema.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -40,8 +40,9 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       }),
     }),
     LocationModule,
-    MoviesModule,
+    CinemaModule,
     HealthModule,
+    AuthModule,
   ],
   providers: [
     {
@@ -52,7 +53,6 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
     },
-    CinemaModule,
   ],
 })
 export class AppModule {}

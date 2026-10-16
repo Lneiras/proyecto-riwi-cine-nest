@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
+  type Relation,
 } from "typeorm";
 import { City } from "./city.entity.js";
 import { Country } from "./country.entity.js";
@@ -27,7 +28,7 @@ export class Department {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "country_id" })
-  country: Country;
+  country: Relation<Country>;
 
   // A department can have multiple cities.
   @Column({ type: 'boolean', default: true })

@@ -82,6 +82,10 @@ El sistema valida de forma estricta las variables requeridas al iniciar (`env.va
 | `PGADMIN_PORT` | Number | No | `5050` | `5050` | N/A | N/A | Puerto web para pgAdmin (dev) |
 | `PGADMIN_DEFAULT_EMAIL` | String | No | `admin@riwi.com` | `admin@riwi.com` | N/A | N/A | Usuario administrador de pgAdmin |
 | `PGADMIN_DEFAULT_PASSWORD` | String | No | `admin1234` | `admin1234` | N/A | N/A | Clave de acceso a pgAdmin |
+| `JWT_SECRET` | String | No | `default_jwt_secret_riwi_cine_2026_super_secure` | Secret Dev | Secret QA | Secret Prod | Clave secreta para firma de Access Tokens |
+| `JWT_EXPIRES_IN` | String | No | `15m` | `15m` | `15m` | `15m` | Tiempo de vida de Access Token (15 min) |
+| `JWT_REFRESH_SECRET` | String | No | `default_jwt_refresh_secret_riwi_cine_2026_super_secure` | Secret Dev | Secret QA | Secret Prod | Clave secreta para Refresh Tokens |
+| `JWT_REFRESH_EXPIRES_IN` | String | No | `7d` | `7d` | `7d` | `7d` | Tiempo de vida de Refresh Token (7 días) |
 
 ---
 
@@ -176,7 +180,20 @@ Todos los endpoints de la API cuentan con prefijo global `/api/v1` (excepto la d
 
 ### 2. Swagger UI (OpenAPI)
 - **URL:** `http://localhost:3000/api-docs`
-- Incluye la definición completa de modelos DTOs, esquemas y endpoints del dominio `Health` y `Locations`.
+- Incluye la definición completa de modelos DTOs, esquemas y endpoints de `Health`, `Locations` y `Auth` (con soporte interactivo para Bearer JWT).
+
+### 3. Autenticación y Control de Acceso (HU-007)
+| Método | Endpoint | Descripción | Criterio / Tarea |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Registro de nuevo usuario (estado inicial de correo no verificado) | Base de usuarios |
+| `POST` | `/api/v1/auth/verify-email` | Verificación de correo electrónico | Escenario 3 |
+| `POST` | `/api/v1/auth/login` | Login con credenciales, emite Access Token (15 min) y Refresh Token (7 días) e invalida tokens previos. Bloqueo temporal por 15 min tras 5 intentos fallidos consecutivos | Escenarios 1, 2, 3 / Task 1, 3 |
+| `POST` | `/api/v1/auth/refresh` | Renovación de sesión con rotación de Refresh Token | Escenario 4 / Task 2 |
+| `POST` | `/api/v1/auth/logout` | Cierre de sesión e invalidación del Refresh Token en base de datos | Task 2 |
+| `POST` | `/api/v1/auth/forgot-password`| Solicitud de restablecimiento de contraseña (token temporal de 15 min) | Task 2 |
+| `POST` | `/api/v1/auth/reset-password` | Actualización de contraseña con token, desbloqueo de cuenta y revocación de sesiones | Task 2 |
+| `GET` | `/api/v1/auth/me` | Consulta de perfil del usuario autenticado (requiere Bearer token) | Seguridad |
+| `GET` | `/api/v1/auth/audit` | Consulta de bitácora de auditoría de accesos (IP, dispositivo, timestamp) | Task 4 |
 
 ---
 

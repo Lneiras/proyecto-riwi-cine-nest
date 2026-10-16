@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CityDao } from "../dao/city.dao.js";
-import { ReqCreateAndUpdateCityDto } from "../dto/city.dto.js";
+import { ReqCreateCityDto, ReqUpdateCityDto } from "../dto/city.dto.js";
 import { City } from "../entities/city.entity.js";
 import { DepartmentService } from "./department.service.js";
 
@@ -8,22 +8,32 @@ import { DepartmentService } from "./department.service.js";
 export class CityService {
   constructor(
     private readonly dao: CityDao,
-    private readonly departmentService: DepartmentService
+    private readonly departmentService: DepartmentService,
   ) {}
 
   private async resolveDepartmentId(departmentName: string): Promise<number> {
-    const department = await this.departmentService.findOneByName(departmentName);
+    const department =
+      await this.departmentService.findOneByName(departmentName);
     return department.id;
   }
 
-  async create(dto: ReqCreateAndUpdateCityDto): Promise<City> {
-    if (!dto.departmentName) throw new NotFoundException("Department name is required");
+  async create(dto: ReqCreateCityDto): Promise<City> {
+    if (!dto.departmentName) {
+      throw new NotFoundException("Department name is required");
+    }
     const departmentId = await this.resolveDepartmentId(dto.departmentName);
     return this.dao.create({ name: dto.name, departmentId });
   }
 
-  async createInDepartment(dto: ReqCreateAndUpdateCityDto, departmentName: string, countryName: string): Promise<City> {
-    const department = await this.departmentService.findOneByNameInCountry(departmentName, countryName);
+  async createInDepartment(
+    dto: ReqCreateCityDto,
+    departmentName: string,
+    countryName: string,
+  ): Promise<City> {
+    const department = await this.departmentService.findOneByNameInCountry(
+      departmentName,
+      countryName,
+    );
     return this.dao.create({ name: dto.name, departmentId: department.id });
   }
 
@@ -32,23 +42,30 @@ export class CityService {
   }
 
   async findOneByName(name: string): Promise<City> {
-    const item = await this.dao.findOneByName(name.trim().replace(/\s+/g, ' '));
-    if (!item) throw new NotFoundException("City not found");
+    const item = await this.dao.findOneByName(name.trim().replace(/\s+/g, " "));
+    if (!item) {
+      throw new NotFoundException("City not found");
+    }
     return item;
   }
 
   async findOneByNameInDepartment(
     name: string,
     departmentName: string,
-    countryName: string
+    countryName: string,
   ): Promise<City> {
     const department = await this.departmentService.findOneByNameInCountry(
       departmentName,
-      countryName
+      countryName,
     );
     const normalizedName = name.trim().replace(/\s+/g, " ");
-    const item = await this.dao.findOneByNameAndDepartmentId(normalizedName, department.id);
-    if (!item) throw new NotFoundException("City not found in department");
+    const item = await this.dao.findOneByNameAndDepartmentId(
+      normalizedName,
+      department.id,
+    );
+    if (!item) {
+      throw new NotFoundException("City not found in department");
+    }
     return item;
   }
 
@@ -59,25 +76,42 @@ export class CityService {
 
   async findByDepartmentAndCountry(
     departmentName: string,
-    countryName: string
+    countryName: string,
   ): Promise<City[]> {
     const department = await this.departmentService.findOneByNameInCountry(
       departmentName,
-      countryName
+      countryName,
     );
     return this.dao.findByDepartmentId(department.id);
   }
 
-  async update(name: string, dto: ReqCreateAndUpdateCityDto): Promise<City | null> {
+  async update(name: string, dto: ReqUpdateCityDto): Promise<City | null> {
     const item = await this.findOneByName(name);
-    if (!dto.departmentName) throw new NotFoundException("Department name is required");
+    if (!dto.departmentName) {
+      throw new NotFoundException("Department name is required");
+    }
     const departmentId = await this.resolveDepartmentId(dto.departmentName);
-    return this.dao.update(item.id, { name: dto.name, departmentId });
+    return this.dao.update(item.id, {
+      name: dto.name ?? item.name,
+      departmentId,
+    });
   }
 
-  async updateInDepartment(name: string, departmentName: string, countryName: string, dto: ReqCreateAndUpdateCityDto): Promise<City | null> {
-    const item = await this.findOneByNameInDepartment(name, departmentName, countryName);
-    return this.dao.update(item.id, { name: dto.name, departmentId: item.departmentId });
+  async updateInDepartment(
+    name: string,
+    departmentName: string,
+    countryName: string,
+    dto: ReqUpdateCityDto,
+  ): Promise<City | null> {
+    const item = await this.findOneByNameInDepartment(
+      name,
+      departmentName,
+      countryName,
+    );
+    return this.dao.update(item.id, {
+      name: dto.name ?? item.name,
+      departmentId: item.departmentId,
+    });
   }
 
   async softDelete(name: string): Promise<void> {
@@ -85,8 +119,16 @@ export class CityService {
     return this.dao.softDelete(item.id);
   }
 
-  async softDeleteInDepartment(name: string, departmentName: string, countryName: string): Promise<void> {
-    const item = await this.findOneByNameInDepartment(name, departmentName, countryName);
+  async softDeleteInDepartment(
+    name: string,
+    departmentName: string,
+    countryName: string,
+  ): Promise<void> {
+    const item = await this.findOneByNameInDepartment(
+      name,
+      departmentName,
+      countryName,
+    );
     return this.dao.softDelete(item.id);
   }
 
@@ -95,8 +137,16 @@ export class CityService {
     return this.dao.delete(item.id);
   }
 
-  async deleteInDepartment(name: string, departmentName: string, countryName: string): Promise<void> {
-    const item = await this.findOneByNameInDepartment(name, departmentName, countryName);
+  async deleteInDepartment(
+    name: string,
+    departmentName: string,
+    countryName: string,
+  ): Promise<void> {
+    const item = await this.findOneByNameInDepartment(
+      name,
+      departmentName,
+      countryName,
+    );
     return this.dao.delete(item.id);
   }
 }

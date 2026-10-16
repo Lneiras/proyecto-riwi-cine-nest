@@ -1,56 +1,106 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Length } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsBoolean, IsNumber, IsOptional, IsString, Length } from "class-validator";
 
 /** Lo que el frontend envía */
 export class ReqCreateSeatsDto {
-    @IsNumber()
-    number: number;
+  @ApiProperty({
+    description: "Número de asiento en la fila",
+    example: 5,
+  })
+  @IsNumber()
+  number: number;
 
-    @IsBoolean()
-    isPreferential: boolean;
+  @ApiProperty({
+    description: "Indica si es un asiento preferencial",
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  isPreferential: boolean;
 
-    @IsOptional()
-    @IsString()
-    @Length(1, 1)
-    rowLetter?: string; // the parent row is supplied by the nested route
+  @ApiPropertyOptional({
+    description: "Letra de la fila",
+    example: "A",
+  })
+  @IsOptional()
+  @IsString()
+  @Length(1, 1)
+  rowLetter?: string;
 }
 
 export class ReqUpdateSeatsDto {
-    @IsOptional()
-    @IsNumber()
-    number?: number;
+  @ApiPropertyOptional({
+    description: "Nuevo número de asiento en la fila",
+    example: 6,
+  })
+  @IsOptional()
+  @IsNumber()
+  number?: number;
 
-    @IsOptional()
-    @IsBoolean()
-    isPreferential?: boolean;
+  @ApiPropertyOptional({
+    description: "Indica si es un asiento preferencial",
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isPreferential?: boolean;
 
-    @IsOptional()
-    @IsString()
-    @Length(1, 1)
-    rowLetter?: string; // frontend manda letra, no id
+  @ApiPropertyOptional({
+    description: "Letra de la fila",
+    example: "A",
+  })
+  @IsOptional()
+  @IsString()
+  @Length(1, 1)
+  rowLetter?: string;
 }
 
 /** Uso interno (dao) */
 export class CreateSeatsDto {
-    @IsNumber()
-    number: number;
+  @ApiProperty({
+    description: "Número de asiento en la fila",
+    example: 5,
+  })
+  @IsNumber()
+  number: number;
 
-    @IsBoolean()
-    isPreferential: boolean;
+  @ApiProperty({
+    description: "Indica si es un asiento preferencial",
+    example: false,
+  })
+  @IsBoolean()
+  isPreferential: boolean;
 
-    @IsNumber()
-    rowId: number;
+  @ApiProperty({
+    description: "ID de la fila",
+    example: 1,
+  })
+  @IsNumber()
+  rowId: number;
 }
 
 export class UpdateSeatsDto {
-    @IsOptional()
-    @IsNumber()
-    number?: number;
+  @ApiPropertyOptional({
+    description: "Nuevo número de asiento en la fila",
+    example: 6,
+  })
+  @IsOptional()
+  @IsNumber()
+  number?: number;
 
-    @IsOptional()
-    @IsBoolean()
-    isPreferential?: boolean;
+  @ApiPropertyOptional({
+    description: "Indica si es un asiento preferencial",
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isPreferential?: boolean;
 
-    @IsOptional()
-    @IsNumber()
-    rowId?: number;
+  @ApiPropertyOptional({
+    description: "ID de la fila",
+    example: 1,
+  })
+  @IsOptional()
+  @IsNumber()
+  rowId?: number;
 }
