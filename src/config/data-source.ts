@@ -12,6 +12,8 @@ import { User } from "../auth/entities/user.entity.js";
 import { RefreshToken } from "../auth/entities/refresh-token.entity.js";
 import { PasswordResetToken } from "../auth/entities/password-reset-token.entity.js";
 import { AuthAuditLog } from "../auth/entities/auth-audit-log.entity.js";
+import { Movie } from "../movies/entities/movie.entity.js";
+import { Showtime } from "../movies/entities/showtime.entity.js";
 
 config();
 
@@ -34,6 +36,8 @@ export const dataSourceOptions: DataSourceOptions = {
     RefreshToken,
     PasswordResetToken,
     AuthAuditLog,
+    Movie,
+    Showtime,
   ],
   migrations: ["dist/database/migrations/*.js"],
   synchronize: process.env.DB_SYNCHRONIZE === "true",

@@ -1,77 +1,79 @@
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
-  CreateDateColumn, 
-  UpdateDateColumn, 
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
   Index,
-  ManyToOne,
   OneToMany,
-  JoinColumn
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
 } from "typeorm";
-// import { Genre } from "./genre.entity.ts"; 
-// import { Status } from "./status.entity.ts";
-import { Showtimes } from "./showtime.entity.js";
+import { Showtime } from "./showtime.entity.js";
 
-@Entity('movies')
-@Index(['genreId'])
-@Index(['statusId'])
-@Index(['rating'])
+/**
+ * Catálogo de películas. HU-004 (consulta de detalle) lee de aquí; los
+ * horarios/precios/formatos/idiomas disponibles salen de sus Showtimes.
+ */
+@Entity("movies")
+@Unique(["name"])
+@Index(["rating"])
 export class Movie {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+  @Column({ type: "varchar", length: 150 })
+  name: string;
 
-    @Column({ type: 'varchar', length: 150, nullable: false })
-    title: string;
+  @Column({ name: "duration_minutes", type: "int" })
+  durationMinutes: number;
 
-    @Column({ type: 'int', nullable: false })
-    durationMinutes: number;
+  /** Clasificación por edades, ej. "PG-13". */
+  @Column({ type: "varchar", length: 10 })
+  rating: string;
 
-    @Column({ type: 'varchar', length: 10, nullable: false })
-    rating: string;
+  @Column({ type: "text", array: true, default: () => "'{}'" })
+  genres: string[];
 
-    @Column({ type: 'int', nullable: false })
-    genreId: number;
+  @Column({ type: "text", nullable: true })
+  synopsis: string | null;
 
-    // Relación con Género
-    // @ManyToOne(() => Genre, { onDelete: 'RESTRICT' })
-    // @JoinColumn({ name: 'genreId' })
-    // genre: Genre;
+  @Column({ type: "varchar", length: 150, nullable: true })
+  director: string | null;
 
-    @Column({ type: 'text', nullable: true })
-    synopsis: string | null;
+  @Column({ type: "text", array: true, default: () => "'{}'" })
+  actors: string[];
 
-    @Column({ type: 'date', nullable: true })
-    releaseDate: Date | string | null;
+  @Column({ name: "release_date", type: "date", nullable: true })
+  releaseDate: Date | string | null;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    posterUrl: string | null;
+  @Column({ name: "poster_url", type: "varchar", length: 255, nullable: true })
+  posterUrl: string | null;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    bannerUrl: string | null;
+  @Column({ name: "banner_url", type: "varchar", length: 255, nullable: true })
+  bannerUrl: string | null;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    trailerUrl: string | null;
+  @Column({ name: "trailer_url", type: "varchar", length: 255, nullable: true })
+  trailerUrl: string | null;
 
-    @Column({ type: 'int', nullable: false })
-    statusId: number;
+  /** Calificación promedio del público (0-5). */
+  @Column({
+    name: "average_rating",
+    type: "numeric",
+    precision: 3,
+    scale: 2,
+    default: 0,
+  })
+  averageRating: string;
 
-    // Relación con Estado (ej. Estreno, Cartelera, Archivada)
-    // @ManyToOne(() => Status, { onDelete: 'RESTRICT' })
-    // @JoinColumn({ name: 'statusId' })
-    // status: Status;
+  @Column({ name: "is_active", type: "boolean", default: true })
+  isActive: boolean;
 
-    // Relación bidireccional inversa hacia Showtimes
-    // Una película tiene muchas funciones (showtimes)
-    @OneToMany(() => Showtimes, (showtime) => showtime.movieId)
-    showtimes: Showtimes[];
+  @OneToMany(() => Showtime, (showtime) => showtime.movie)
+  showtimes: Showtime[];
 
-    @CreateDateColumn({ name: 'createdAt' })
-    createdAt: Date;
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: Date;
 
-    @UpdateDateColumn({ name: 'updatedAt' })
-    updatedAt: Date;
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: Date;
 }
-
-

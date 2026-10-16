@@ -1,54 +1,66 @@
-import { 
-    Entity, 
-    PrimaryGeneratedColumn, 
-    Column, 
-    Index, 
-    ManyToOne, 
-    JoinColumn } from 'typeorm';
-// import { Movie } from './movie.entity';     
-// import { Room } from './room.entity';
-// import { Format } from './format.entity';
-// import { Language } from './language.entity';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from "typeorm";
+import { Room } from "../../cinema/entities/room.entity.js";
+import { Movie } from "./movie.entity.js";
 
+export enum AudioType {
+  DUBBED = "DUBBED",
+  SUBTITLED = "SUBTITLED",
+}
+
+/**
+ * Una función: una película proyectada en una sala, a una hora.
+ * El formato (2D/3D/IMAX/4D) sale de `room.type`; el cine y la ciudad,
+ * de `room.cinema` y `room.cinema.city`.
+ */
 @Entity("showtimes")
-@Index(['movieId'])
-@Index(['roomId'])
-@Index(['languageId'])
-export class Showtimes {
+@Index(["movieId", "startsAt"])
+export class Showtime {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "int", nullable: false })
+  @Column({ name: "movie_id", type: "int" })
   movieId: number;
 
-//   @ManyToOne(() => Movie, (movie) => movie.showtimes, { onDelete: 'CASCADE' })
-//   @JoinColumn({ name: 'movieId' })
-//   movie: Movie;
+  @ManyToOne(() => Movie, (movie) => movie.showtimes, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "movie_id" })
+  movie: Relation<Movie>;
 
-  @Column({ type: "int", nullable: false })
+  @Column({ name: "room_id", type: "int" })
   roomId: number;
 
-//   @ManyToOne(() => Room, (room) => room.showtimes, { onDelete: 'RESTRICT' })
-//   @JoinColumn({ name: 'roomId' })
-//   room: Room;
+  @ManyToOne(() => Room, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "room_id" })
+  room: Relation<Room>;
 
-  @Column({ type: "int", nullable: false })
-  formatId: number;
+  @Column({ type: "varchar", length: 50 })
+  language: string;
 
-//   @ManyToOne(() => Format, { onDelete: 'RESTRICT' }) // Ejemplo sin relación inversa obligatoria
-//   @JoinColumn({ name: 'formatId' })
-//   format: Format;
+  @Column({ name: "audio_type", type: "varchar", length: 20 })
+  audioType: AudioType;
 
-  @Column({ type: "int", nullable: false })
-  languageId: number;
+  @Column({ name: "starts_at", type: "timestamptz" })
+  startsAt: Date;
 
-//   @ManyToOne(() => Language, { onDelete: 'RESTRICT' })
-//   @JoinColumn({ name: 'languageId' })
-//   language: Language;
+  /** Valor de la entrada; puede variar por formato, sala y horario (RN-037). */
+  @Column({ type: "numeric", precision: 10, scale: 2 })
+  price: string;
 
-  @Column({ type: "timestamptz", nullable: false }) // Corregido: timestamptz
-  dateTime: Date;
+  /**
+   * No existe todavía un sistema de reservas de sillas (HU-010/HU-011);
+   * mientras tanto esta bandera permite marcar visualmente una función
+   * agotada (RN-015).
+   */
+  @Column({ name: "sold_out", type: "boolean", default: false })
+  soldOut: boolean;
 
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: false })
-  basePrice: string;
+  @Column({ name: "is_active", type: "boolean", default: true })
+  isActive: boolean;
 }

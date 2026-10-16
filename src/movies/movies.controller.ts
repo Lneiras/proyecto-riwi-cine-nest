@@ -1,34 +1,81 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { MoviesService } from './movies.service.js';
-import { CreateMovieDto } from './dto/create-movie.dto.js';
-import { UpdateMovieDto } from './dto/update-movie.dto.js';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from "@nestjs/common";
+import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { CreateMovieDto, MovieDetailQueryDto, RecommendationsQueryDto, UpdateMovieDto } from "./dto/movies.dto.js";
+import { Movie } from "./entities/movie.entity.js";
+import { MoviesService } from "./movies.service.js";
+import { MovieDetail, MovieSummary } from "./movies.types.js";
 
-@Controller('movies')
+@ApiTags("Movies")
+@Controller("movies")
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
   @Post()
-  create(@Body() createMovieDto: CreateMovieDto) {
-    return this.moviesService.create(createMovieDto);
+  @ApiOperation({ summary: "Crear una nueva película" })
+  create(@Body() dto: CreateMovieDto): Promise<Movie> {
+    return this.moviesService.create(dto);
   }
 
   @Get()
-  findAll() {
+  @ApiOperation({ summary: "Obtener lista de todas las películas activas" })
+  findAll(): Promise<Movie[]> {
     return this.moviesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.moviesService.findOne(+id);
+  @Get(":movieName")
+  @ApiOperation({ summary: "Detalle completo de una película, por su nombre (HU-004)" })
+  @ApiParam({ name: "movieName", description: "Nombre de la película", example: "Dune: Parte Dos" })
+  findOne(
+    @Param("movieName") movieName: string,
+    @Query() query: MovieDetailQueryDto,
+  ): Promise<MovieDetail> {
+    return this.moviesService.findDetailByName(movieName, query.cityName);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    return this.moviesService.update(+id, updateMovieDto);
+  @Get(":movieName/recommendations")
+  @ApiOperation({ summary: "Películas similares por género (HU-004)" })
+  @ApiParam({ name: "movieName", description: "Nombre de la película", example: "Dune: Parte Dos" })
+  findRecommendations(
+    @Param("movieName") movieName: string,
+    @Query() query: RecommendationsQueryDto,
+  ): Promise<MovieSummary[]> {
+    return this.moviesService.findRecommendations(movieName, query.limit);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.moviesService.remove(+id);
+  @Patch(":movieName")
+  @ApiOperation({ summary: "Actualizar datos de una película" })
+  @ApiParam({ name: "movieName", description: "Nombre actual de la película" })
+  update(
+    @Param("movieName") movieName: string,
+    @Body() dto: UpdateMovieDto,
+  ): Promise<Movie | null> {
+    return this.moviesService.update(movieName, dto);
+  }
+
+  @Delete(":movieName/soft-delete")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Desactivar una película de forma lógica (soft-delete en cascada)" })
+  @ApiParam({ name: "movieName", description: "Nombre de la película" })
+  softDelete(@Param("movieName") movieName: string): Promise<void> {
+    return this.moviesService.softDelete(movieName);
+  }
+
+  @Delete(":movieName")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Eliminar físicamente una película" })
+  @ApiParam({ name: "movieName", description: "Nombre de la película" })
+  delete(@Param("movieName") movieName: string): Promise<void> {
+    return this.moviesService.delete(movieName);
   }
 }
