@@ -16,6 +16,8 @@ export interface BillboardCriteria {
   format?: string;
   cinemaId?: number;
   roomId?: number;
+  skip: number; // cuántas películas saltar (páginas anteriores)
+  take: number; // cuántas películas traer (tamaño de la página)
 }
 
 @Injectable()
@@ -24,9 +26,10 @@ export class MoviesDao {
     @InjectRepository(Movie) private readonly repository: Repository<Movie>,
   ) {}
 
-  // Devuelve las películas que tienen al menos una función que cumple TODOS
-  // los criterios. Cada película trae solo sus funciones que los cumplen.
-  async findBillboard(criteria: BillboardCriteria): Promise<Movie[]> {
+  // Devuelve UNA PÁGINA de películas que tienen al menos una función que
+  // cumple TODOS los criterios, y el total de películas (todas las páginas).
+  // Cada película trae solo sus funciones que cumplen los criterios.
+  async findBillboard(criteria: BillboardCriteria): Promise<[Movie[], number]> {
     // QueryBuilder: construimos el SQL paso a paso.
     // "innerJoin" descarta las películas que no tienen funciones que coincidan.
     const query = this.repository
@@ -80,10 +83,29 @@ export class MoviesDao {
       query.andWhere("room.id = :roomId", { roomId: criteria.roomId });
     }
 
-    return query
+    // Paginación: skip/take cuentan PELÍCULAS, no filas del JOIN.
+    // ⚠️ Con joins, TypeORM solo pagina bien si el orden usa columnas de
+    // la entidad principal (movie). Por eso aquí NO ordenamos por fecha
+    // u hora de la función: las funciones se ordenan abajo.
+    // movie.id va de desempate: si dos películas tienen el mismo título,
+    // el orden sigue siendo estable entre páginas.
+    const [movies, total] = await query
       .orderBy("movie.title", "ASC")
-      .addOrderBy("fn.functionDate", "ASC")
-      .addOrderBy("showtime.startTime", "ASC")
-      .getMany();
+      .addOrderBy("movie.id", "ASC")
+      .skip(criteria.skip)
+      .take(criteria.take)
+      .getManyAndCount();
+
+    // Ordenamos las funciones de cada película por fecha y hora.
+    // Comparar strings "YYYY-MM-DD" y "HH:MM:SS" sirve como comparar fechas.
+    for (const movie of movies) {
+      movie.functions.sort((a, b) =>
+        (a.functionDate + a.showtime.startTime).localeCompare(
+          b.functionDate + b.showtime.startTime,
+        ),
+      );
+    }
+
+    return [movies, total];
   }
 }

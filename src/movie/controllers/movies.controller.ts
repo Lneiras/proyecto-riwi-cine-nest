@@ -1,8 +1,25 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, Query, Res } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { MoviesService } from "../services/movies.service.js";
+import type { Response } from "express";
+import {
+  MoviesService,
+  type PaginatedMovies,
+} from "../services/movies.service.js";
 import { BillboardQueryDto, MovieFilterQueryDto } from "../dto/movies.dto.js";
 import { Movie } from "../entities/movie.entity.js";
+
+// Header donde va el total de películas (todas las páginas).
+// El body sigue siendo la lista, como en el resto de la API.
+const TOTAL_COUNT_HEADER = "X-Total-Count";
+
+// Documentación del header para Swagger.
+const TOTAL_COUNT_HEADER_DOC = {
+  [TOTAL_COUNT_HEADER]: {
+    description:
+      "Total de películas que cumplen los criterios (todas las páginas)",
+    schema: { type: "integer", example: 23 },
+  },
+};
 
 // Ejemplos que se muestran en Swagger (solo documentación).
 const BILLBOARD_EXAMPLE = [
@@ -73,14 +90,19 @@ export class MoviesController {
     description:
       "Lista de películas con sus funciones. Lista vacía si la ciudad no tiene funciones",
     schema: { example: BILLBOARD_EXAMPLE },
+    headers: TOTAL_COUNT_HEADER_DOC,
   })
   @ApiResponse({
     status: 400,
-    description: "cityId faltante o inválido",
+    description: "cityId faltante o inválido, o page/limit inválidos",
     schema: { example: BAD_REQUEST_EXAMPLE },
   })
-  findWeekly(@Query() query: BillboardQueryDto): Promise<Movie[]> {
-    return this.service.findWeekly(query.cityId);
+  async findWeekly(
+    @Query() query: BillboardQueryDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Movie[]> {
+    const page = await this.service.findWeekly(query);
+    return this.sendPage(res, page);
   }
 
   @Get("today")
@@ -93,14 +115,19 @@ export class MoviesController {
     description:
       "Lista de películas con sus funciones de hoy. Lista vacía si no hay funciones",
     schema: { example: BILLBOARD_EXAMPLE },
+    headers: TOTAL_COUNT_HEADER_DOC,
   })
   @ApiResponse({
     status: 400,
-    description: "cityId faltante o inválido",
+    description: "cityId faltante o inválido, o page/limit inválidos",
     schema: { example: BAD_REQUEST_EXAMPLE },
   })
-  findToday(@Query() query: BillboardQueryDto): Promise<Movie[]> {
-    return this.service.findToday(query.cityId);
+  async findToday(
+    @Query() query: BillboardQueryDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Movie[]> {
+    const page = await this.service.findToday(query);
+    return this.sendPage(res, page);
   }
 
   @Get("filter")
@@ -114,11 +141,12 @@ export class MoviesController {
     description:
       "Películas que cumplen todos los filtros. Lista vacía si no hay coincidencias",
     schema: { example: BILLBOARD_EXAMPLE },
+    headers: TOTAL_COUNT_HEADER_DOC,
   })
   @ApiResponse({
     status: 400,
     description:
-      "Algún filtro tiene un valor inválido o la fecha está fuera de los próximos 7 días",
+      "Algún filtro o page/limit tiene un valor inválido, o la fecha está fuera de los próximos 7 días",
     schema: {
       example: {
         ...BAD_REQUEST_EXAMPLE,
@@ -127,7 +155,19 @@ export class MoviesController {
       },
     },
   })
-  filter(@Query() query: MovieFilterQueryDto): Promise<Movie[]> {
-    return this.service.filter(query);
+  async filter(
+    @Query() query: MovieFilterQueryDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<Movie[]> {
+    const page = await this.service.filter(query);
+    return this.sendPage(res, page);
+  }
+
+  // Pone el total en el header y devuelve solo la lista (el body).
+  // @Res({ passthrough: true }) nos deja tocar la respuesta (headers)
+  // y aun así Nest envía lo que retornamos como JSON.
+  private sendPage(res: Response, page: PaginatedMovies): Movie[] {
+    res.setHeader(TOTAL_COUNT_HEADER, page.total);
+    return page.items;
   }
 }

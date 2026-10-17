@@ -27,6 +27,9 @@ async function bootstrap() {
     origin: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
+    // Headers propios que el navegador puede leer desde el frontend
+    // (por defecto CORS los oculta). X-Total-Count: paginación HU-003.
+    exposedHeaders: ["X-Total-Count"],
   });
 
   // Global API Prefix

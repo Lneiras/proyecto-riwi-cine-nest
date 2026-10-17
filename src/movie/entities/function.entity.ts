@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -18,13 +19,26 @@ export enum FunctionLanguage {
   SUBTITULADA = "SUBTITULADA",
 }
 
+// Tabla "functions": una función es UNA proyección concreta.
+// Ejemplo: "Dune, en la Sala 3, formato IMAX, subtitulada, el 2026-10-15
+// a las 19:00, con precio base de $18.000".
+//
 // La clase se llama MovieFunction (y no Function) porque "Function" ya es
 // un objeto global de JavaScript y no debemos taparlo.
-
+//
+// ¿Y la ciudad y el complejo? Se llega a ellos por la sala:
+// functions.room_id -> room.cinema_id (complejo) -> cinemas.cityId (ciudad).
+// Así no repetimos datos que podrían quedar inconsistentes.
 @Entity("functions")
 // Regla de integridad: una sala no puede tener dos funciones
 // el mismo día en el mismo horario.
 @Unique(["roomId", "functionDate", "showtimeId"])
+// Índices (HU-003 Task 3): aceleran las búsquedas más frecuentes.
+// - function_date: la cartelera siempre filtra por un rango de fechas.
+// - movie_id: unir películas con sus funciones (y HU-004: funciones de una película).
+// PostgreSQL NO crea índices automáticos para las llaves foráneas.
+@Index("IDX_functions_function_date", ["functionDate"])
+@Index("IDX_functions_movie_id", ["movieId"])
 export class MovieFunction {
   @PrimaryGeneratedColumn()
   id: number;
@@ -55,7 +69,10 @@ export class MovieFunction {
   @Column({ name: "is_active", type: "boolean", default: true })
   isActive: boolean;
 
-
+  // ---------- RELACIONES (todas son "muchas funciones -> uno") ----------
+  // Para cada relación tenemos dos propiedades:
+  //  - la columna con el id (ej. movieId), útil para filtrar y guardar.
+  //  - el objeto relacionado (ej. movie), útil para hacer joins.
   // onDelete "RESTRICT": no se puede borrar una película, sala, formato u
   // horario si todavía tiene funciones asociadas.
   //

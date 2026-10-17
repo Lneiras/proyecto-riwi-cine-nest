@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  Max,
   MaxLength,
   Min,
 } from "class-validator";
@@ -24,10 +25,35 @@ export class BillboardQueryDto {
   @IsInt({ message: "cityId must be an integer" })
   @Min(1, { message: "cityId must be greater than 0" })
   cityId: number;
+
+  // Paginación (HU-003 Task 3). Ambos son opcionales:
+  // si no se envían, se usan los valores por defecto (página 1, 10 películas).
+  @ApiPropertyOptional({
+    description: "Número de página (empieza en 1)",
+    example: 1,
+    default: 1,
+  })
+  @IsOptional()
+  @IsInt({ message: "page must be an integer" })
+  @Min(1, { message: "page must be greater than 0" })
+  page: number = 1;
+
+  @ApiPropertyOptional({
+    description: "Cantidad de películas por página (máximo 50)",
+    example: 10,
+    default: 10,
+  })
+  @IsOptional()
+  @IsInt({ message: "limit must be an integer" })
+  @Min(1, { message: "limit must be greater than 0" })
+  // Un máximo evita que alguien pida limit=100000 y sobrecargue la BD.
+  @Max(50, { message: "limit cannot be greater than 50" })
+  limit: number = 10;
 }
 
 // Query params de GET /movies/filter.
-// Hereda cityId y agrega los filtros opcionales: todos se pueden combinar.
+// Hereda cityId, page y limit, y agrega los filtros opcionales:
+// todos se pueden combinar.
 export class MovieFilterQueryDto extends BillboardQueryDto {
   @ApiPropertyOptional({
     description:
