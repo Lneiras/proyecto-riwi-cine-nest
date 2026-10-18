@@ -27,6 +27,9 @@ async function bootstrap() {
     origin: true,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true,
+    // Headers propios que el navegador puede leer desde el frontend
+    // (por defecto CORS los oculta). X-Total-Count: paginación HU-003.
+    exposedHeaders: ["X-Total-Count"],
   });
 
   // Global API Prefix
@@ -58,6 +61,10 @@ async function bootstrap() {
       "Endpoints de autenticación segura, control de sesiones y auditoría (HU-007)",
     )
     .addTag("Cinemas", "Endpoints de gestión de cines, salas, filas y asientos")
+    .addTag(
+      "Movies",
+      "Cartelera de películas: semanal, del día y con filtros combinados (HU-003)",
+    )
     .addBearerAuth()
     .build();
 
