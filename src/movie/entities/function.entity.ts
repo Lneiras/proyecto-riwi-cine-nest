@@ -69,6 +69,11 @@ export class MovieFunction {
   @Column({ name: "is_active", type: "boolean", default: true })
   isActive: boolean;
 
+  // Aún no hay reservas de sillas (HU-010/HU-011); mientras tanto esta
+  // bandera permite marcar una función como agotada (RN-015).
+  @Column({ name: "sold_out", type: "boolean", default: false })
+  soldOut: boolean;
+
   // ---------- RELACIONES (todas son "muchas funciones -> uno") ----------
   // Para cada relación tenemos dos propiedades:
   //  - la columna con el id (ej. movieId), útil para filtrar y guardar.

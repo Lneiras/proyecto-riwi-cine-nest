@@ -120,3 +120,31 @@ export class MovieFilterQueryDto extends BillboardQueryDto {
   @Min(1, { message: "roomId must be greater than 0" })
   roomId?: number;
 }
+
+// Query param de GET /movies/:id (HU-004). Igual que weekly/today/filter,
+// la ciudad se envía como cityId numérico.
+export class MovieDetailQueryDto {
+  @ApiPropertyOptional({
+    description:
+      "Ciudad seleccionada. Si se envía, las funciones, idiomas y formatos se acotan a esa ciudad",
+    example: 1,
+  })
+  @IsOptional()
+  @IsInt({ message: "cityId must be an integer" })
+  @Min(1, { message: "cityId must be greater than 0" })
+  cityId?: number;
+}
+
+// Query param de GET /movies/:id/recommendations (HU-004).
+export class RecommendationsQueryDto {
+  @ApiPropertyOptional({
+    description: "Cantidad máxima de recomendaciones",
+    example: 6,
+    default: 6,
+  })
+  @IsOptional()
+  @IsInt({ message: "limit must be an integer" })
+  @Min(1, { message: "limit must be greater than 0" })
+  @Max(20, { message: "limit cannot be greater than 20" })
+  limit: number = 6;
+}

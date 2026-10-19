@@ -1,12 +1,30 @@
-import { Controller, Get, Query, Res } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  Res,
+} from "@nestjs/common";
+import {
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import type { Response } from "express";
 import {
   MoviesService,
   type PaginatedMovies,
 } from "../services/movies.service.js";
-import { BillboardQueryDto, MovieFilterQueryDto } from "../dto/movies.dto.js";
+import {
+  BillboardQueryDto,
+  MovieDetailQueryDto,
+  MovieFilterQueryDto,
+  RecommendationsQueryDto,
+} from "../dto/movies.dto.js";
 import { Movie } from "../entities/movie.entity.js";
+import type { MovieDetail } from "../movie.types.js";
 
 // Header donde va el total de películas (todas las páginas).
 // El body sigue siendo la lista, como en el resto de la API.
@@ -161,6 +179,40 @@ export class MoviesController {
   ): Promise<Movie[]> {
     const page = await this.service.filter(query);
     return this.sendPage(res, page);
+  }
+
+  // ===== HU-004: detalle de película =====
+  // ⚠️ Van DESPUÉS de weekly, today y filter: si se declararan antes,
+  // "weekly" se tomaría como un :id.
+  @Get(":id")
+  @ApiOperation({
+    summary: "Detalle de una película (HU-004)",
+    description:
+      "Datos completos, tráiler embebible y funciones futuras con sus idiomas, formatos y rango de precio. Con cityId se acotan a esa ciudad",
+  })
+  @ApiParam({ name: "id", description: "ID de la película", example: 1 })
+  @ApiResponse({ status: 200, description: "Detalle de la película" })
+  @ApiResponse({ status: 404, description: "La película no existe o está inactiva" })
+  findOne(
+    @Param("id", ParseIntPipe) id: number,
+    @Query() query: MovieDetailQueryDto,
+  ): Promise<MovieDetail> {
+    return this.service.findDetail(id, query.cityId);
+  }
+
+  @Get(":id/recommendations")
+  @ApiOperation({
+    summary: "Películas similares (HU-004)",
+    description: "Películas activas del mismo género, mejor calificadas primero",
+  })
+  @ApiParam({ name: "id", description: "ID de la película", example: 1 })
+  @ApiResponse({ status: 200, description: "Lista de películas similares (puede ser vacía)" })
+  @ApiResponse({ status: 404, description: "La película no existe o está inactiva" })
+  findRecommendations(
+    @Param("id", ParseIntPipe) id: number,
+    @Query() query: RecommendationsQueryDto,
+  ): Promise<Movie[]> {
+    return this.service.findRecommendations(id, query.limit);
   }
 
   // Pone el total en el header y devuelve solo la lista (el body).

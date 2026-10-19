@@ -108,4 +108,68 @@ export class MoviesDao {
 
     return [movies, total];
   }
+
+  // GET /movies/:id (HU-004). Trae la película activa con sus funciones
+  // activas desde `dateFrom`, opcionalmente solo las de una ciudad.
+  // LEFT JOIN: si no hay funciones, la película igual se devuelve (functions=[]).
+  async findByIdWithFunctions(
+    id: number,
+    options: { cityId?: number; dateFrom: string },
+  ): Promise<Movie | null> {
+    const query = this.repository
+      .createQueryBuilder("movie")
+      .leftJoinAndSelect(
+        "movie.functions",
+        "fn",
+        "fn.isActive = true AND fn.functionDate >= :dateFrom",
+        { dateFrom: options.dateFrom },
+      )
+      .leftJoinAndSelect("fn.format", "format", "format.isActive = true")
+      .leftJoinAndSelect("fn.showtime", "showtime", "showtime.isActive = true")
+      .leftJoinAndSelect("fn.room", "room", "room.isActive = true")
+      .leftJoinAndSelect("room.cinema", "cinema", "cinema.isActive = true")
+      .where("movie.id = :id", { id })
+      .andWhere("movie.isActive = true");
+
+    if (options.cityId !== undefined) {
+      query.andWhere("(fn.id IS NULL OR cinema.cityId = :cityId)", {
+        cityId: options.cityId,
+      });
+    }
+
+    const movie = await query.getOne();
+
+    if (movie?.functions) {
+      // Descartamos funciones a medias (formato/horario/sala/cine inactivos
+      // dejan esas relaciones en null por el LEFT JOIN) y ordenamos.
+      movie.functions = movie.functions
+        .filter((fn) => fn.format && fn.showtime && fn.room?.cinema)
+        .sort((a, b) =>
+          (a.functionDate + a.showtime.startTime).localeCompare(
+            b.functionDate + b.showtime.startTime,
+          ),
+        );
+    }
+
+    return movie;
+  }
+
+  // GET /movies/:id/recommendations (HU-004). Películas activas del mismo
+  // género (sin distinguir mayúsculas), mejor calificadas primero.
+  async findSimilar(
+    genre: string,
+    excludeId: number,
+    limit: number,
+  ): Promise<Movie[]> {
+    return this.repository
+      .createQueryBuilder("movie")
+      .where("movie.isActive = true")
+      .andWhere("movie.id != :excludeId", { excludeId })
+      .andWhere("LOWER(movie.genre) = LOWER(:genre)", { genre })
+      .orderBy("movie.averageRating", "DESC")
+      .addOrderBy("movie.title", "ASC")
+      .addOrderBy("movie.id", "ASC")
+      .take(limit)
+      .getMany();
+  }
 }
