@@ -148,6 +148,14 @@ export class MoviesService {
       ),
     };
   }
+  // GET /movies/:id/functions (HU-004)
+  // Reutiliza el detalle para mantener las mismas validaciones:
+  // Pelicula existente, ciudad opcional y funciones futuras
+
+  async findFunctions(id: number, cityId?: number){
+    const movie= await this.findDetail(id, cityId);
+    return movie.functions;
+  }
 
   // GET /movies/:id/recommendations (HU-004).
   // Películas activas del mismo género, mejor calificadas primero.

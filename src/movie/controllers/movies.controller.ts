@@ -182,24 +182,24 @@ export class MoviesController {
   }
 
   // ===== HU-004: detalle de película =====
-  // ⚠️ Van DESPUÉS de weekly, today y filter: si se declararan antes,
+  // Van DESPUÉS de weekly, today y filter: si se declararan antes,
   // "weekly" se tomaría como un :id.
-  @Get(":id")
+
+  @Get(":id/functions")
   @ApiOperation({
-    summary: "Detalle de una película (HU-004)",
-    description:
-      "Datos completos, tráiler embebible y funciones futuras con sus idiomas, formatos y rango de precio. Con cityId se acotan a esa ciudad",
+    summary: "Funciones futuras de una pelicula (HU-004)",
+    description: "Devuelve las funciones futuras de la pelicula. Se puede enviar cityId para filtrar por la ciudad seleccionada.",
   })
-  @ApiParam({ name: "id", description: "ID de la película", example: 1 })
-  @ApiResponse({ status: 200, description: "Detalle de la película" })
-  @ApiResponse({ status: 404, description: "La película no existe o está inactiva" })
-  findOne(
+  @ApiParam({name: "id",description: "ID de la pelicula",example: 1,})
+  @ApiResponse({status: 200,description: "Lista de funciones futuras; Si no hay, puede traer un arreglo vacio."})
+  @ApiResponse({status: 404,description: "La pelicula no existe o se encuentra inactiva."})
+   findFunctions(
     @Param("id", ParseIntPipe) id: number,
     @Query() query: MovieDetailQueryDto,
-  ): Promise<MovieDetail> {
-    return this.service.findDetail(id, query.cityId);
+  ): Promise<MovieDetail["functions"]> {
+    return this.service.findFunctions(id, query.cityId);
   }
-
+  
   @Get(":id/recommendations")
   @ApiOperation({
     summary: "Películas similares (HU-004)",
@@ -222,4 +222,21 @@ export class MoviesController {
     res.setHeader(TOTAL_COUNT_HEADER, page.total);
     return page.items;
   }
+
+  @Get(":id")
+  @ApiOperation({
+    summary: "Detalle de una película (HU-004)",
+    description:
+      "Datos completos, tráiler embebible y funciones futuras con sus idiomas, formatos y rango de precio. Con cityId se acotan a esa ciudad",
+  })
+  @ApiParam({ name: "id", description: "ID de la película", example: 1 })
+  @ApiResponse({ status: 200, description: "Detalle de la película" })
+  @ApiResponse({ status: 404, description: "La película no existe o está inactiva" })
+  findOne(
+    @Param("id", ParseIntPipe) id: number,
+    @Query() query: MovieDetailQueryDto,
+  ): Promise<MovieDetail> {
+    return this.service.findDetail(id, query.cityId);
+  }
+
 }
